@@ -46,6 +46,8 @@ def parseScript():
         if lines[0].strip() != 'start' or lines[-1].strip() != 'end':
             file.write("Error during compilation")
             return
+
+        file.write("# Compiled with TomScript")
             
         for line in lines:
             if line.startswith('create variable'):

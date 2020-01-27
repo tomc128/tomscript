@@ -1,2 +1,4 @@
 *.exe
 *.spec
+*.py
+*.tms
