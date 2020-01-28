@@ -6,6 +6,7 @@ optionCompileComments = False
 optionCompileExecutable = False
 optionCompileDebug = False
 startOffset = 0
+lineCount = 0
 
 def loadSettings():
     global sourceFile, outputFile, optionCompileComments, optionCompileExecutable, optionCompileDebug, commentCount, startOffset
