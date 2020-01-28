@@ -5,7 +5,7 @@ outputFile = ''
 optionCompileComments = False
 optionCompileExecutable = False
 optionCompileDebug = False
-
+startOffset = 0
 
 def loadSettings():
     global sourceFile, outputFile, optionCompileComments, optionCompileExecutable, optionCompileDebug, commentCount, startOffset
