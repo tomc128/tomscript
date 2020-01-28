@@ -40,7 +40,7 @@ def isNumber(value):
 
 def parseScript():
     lines = readFile(sourceFile)
-    variables = {'temp': None}
+    variables = {'result': None}
 
     with open(outputFile, 'w') as file:
         if lines[0].strip() != 'start' or lines[-1].strip() != 'end':
@@ -90,7 +90,7 @@ def parseScript():
                     variableValue = 'input()'
                     variables[variableName] = '{' + variableName + '}'
                 elif variableValue == 'result':
-                    variableValue = variables['temp']
+                    variableValue = variables['result']
                     variables[variableName] = variableValue
                 elif not isNumber(variableValue):
                     variableValue = f'"{variableValue}"'
@@ -100,7 +100,7 @@ def parseScript():
             elif line.startswith('calculate'):
                 # Eval
                 data = line[10:]
-                variables['temp'] = eval(data)
+                variables['result'] = eval(data)
                 
             elif line.startswith('//'):
                 if optionCompileComments:
