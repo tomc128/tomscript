@@ -47,7 +47,7 @@ def parseScript():
             file.write("Error during compilation")
             return
 
-        file.write("# Compiled with TomScript")
+        file.write("# Compiled with TSC")
             
         for line in lines:
             if line.startswith('create variable'):
