@@ -6,7 +6,7 @@ optionCompileComments = False
 optionCompileExecutable = False
 optionCompileDebug = False
 startOffset = 0
-lineCount = 0
+
 
 def loadSettings():
     global sourceFile, outputFile, optionCompileComments, optionCompileExecutable, optionCompileDebug, commentCount, startOffset
@@ -29,8 +29,10 @@ def loadSettings():
 
 
 def readFile(inputFile):
+    global lineCount
     with open(sourceFile, 'r') as file:
         lines = file.readlines()
+        lineCount = len.lines()
 
     return lines
 
