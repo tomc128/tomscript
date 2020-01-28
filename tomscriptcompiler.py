@@ -23,7 +23,7 @@ def loadSettings():
                 optionCompileDebug = True
             elif line.startswith('option commentLines'):
                 commentCount = int(line[19:].strip())
-                startOffset = commentCount - 1
+                startOffset = commentCount
                 
 
 
@@ -51,7 +51,7 @@ def parseScript():
             file.write("Error during compilation")
             return
 
-        file.write("# Compiled with TSC")
+        file.write("# Compiled with TSC\n")
             
         for line in lines:
             if line.startswith('create variable'):
