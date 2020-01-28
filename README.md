@@ -30,6 +30,8 @@ Using TomScript is simple! Simply create a `.tms` file containing your code, edi
 
 Every TomScript program is structured in the following way:
     
+    [Optional Comments]
+    
     start
 
     // code
