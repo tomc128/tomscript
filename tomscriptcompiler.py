@@ -8,7 +8,7 @@ optionCompileDebug = False
 
 
 def loadSettings():
-    global sourceFile, outputFile, optionCompileComments, optionCompileExecutable, optionCompileDebug
+    global sourceFile, outputFile, optionCompileComments, optionCompileExecutable, optionCompileDebug, commentCount, startOffset
     with open('tms.config', 'r') as file:
         for line in file.readlines():
             if line.startswith('source'):
@@ -21,6 +21,10 @@ def loadSettings():
                 optionCompileExecutable = True
             elif line.strip() == 'option compile debug':
                 optionCompileDebug = True
+            elif line.startswith('option commentLines'):
+                commentCount = int(line[19:].strip())
+                startOffset = commentCount - 1
+                
 
 
 def readFile(inputFile):
@@ -43,7 +47,7 @@ def parseScript():
     variables = {'result': None}
 
     with open(outputFile, 'w') as file:
-        if lines[0].strip() != 'start' or lines[-1].strip() != 'end':
+        if lines[startOffset].strip() != 'start' or lines[-1].strip() != 'end':
             file.write("Error during compilation")
             return
 
