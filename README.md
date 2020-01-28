@@ -104,6 +104,8 @@ The `source` parameter specifies the input TomScript, and the `output` parameter
     option compile executable // this option builds to an exe file, as well as a Python file
     
     option compile debug // this option builds to an exe file, while retaining all temporary build files that are generated
+    
+    option commentLines 0 // allows you to comment before start in your tms file, edit to accommodate how many lines of comments you use, if any
 
 
 Any questions? Feel free to create an issue or fork the repo and fix it yourself!
