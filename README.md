@@ -1,3 +1,5 @@
+**PLEASE NOTE** There is a major compiler update coming to TomScript, and so much of this documentation may change!
+
 # Welcome to TomScript
 #### A completely useless yet undeniably awesome programming language.
 
