@@ -34,13 +34,13 @@ def loadConfig():
 
 def loadSourceFile():
     with open(sourceFile, 'r') as source:
-        source = source.read().replace('\n', '\n\n')
-        return source.splitlines()
+        source = source.read().replace('\n', '\n\n') + '\n'
+        return source.splitlines(keepends=True)
 
 
 def featureDetection():
     global sourceLines, codeLanguage
-    
+
     sourceLines = [line for line in sourceLines]
 
     for line in sourceLines:
@@ -57,12 +57,28 @@ def intialTokenReplacement():
     for i in range(len(sourceLines)):
         for key in keys:
             if key.lower() in sourceLines[i].lower():
-                sourceLines[i] = re.sub(key, identifiers[codeLanguage][key].strip(), sourceLines[i], flags=re.IGNORECASE)
+                # matcher = re.compile(r"\s*" + key.strip() + r"\s+", re.IGNORECASE)
+                # match = matcher.match(sourceLines[i])
+                # if match is not None:
+                #     # match found
+                #     print(f'{str(i)} / {identifiers[codeLanguage][key].strip()} -> "{match.group()}"')
+
+                # sourceLines[i] = re.sub(key, identifiers[codeLanguage][key], sourceLines[i], flags=re.IGNORECASE)
+                sourceLines[i] = re.sub(r"\s*" + key + r"\s+", ' ' + identifiers[codeLanguage][key] + ' ', sourceLines[i], flags=re.IGNORECASE).strip()
+                print(str(i) + ' -> ' + sourceLines[i])
+
+    # i = 0
+    # length = len(sourceLines)
+    # while(i < length):
+    #     if(sourceLines[i] == '\n'):
+    #         sourceLines.remove(sourceLines[i])
+    #         length -= 1
+    #         continue
+    #     i += 1
+
 
     targetIndex = sourceLines.index('START_PROGRAM')
     sourceLines = sourceLines[targetIndex:]
-
-
 
 
 
@@ -90,8 +106,8 @@ def lexicalAnalysis():
             if (i+1 < len(line)):  # If the next character exists,
                 if (line[i+1] == ' '):  # and it is whitespace,
 
-                    if (tokenIsKnown(lexeme)):
-                        #lexemes.append(identifiers[codeLanguage][lexeme.strip()])
+                    if (tokenIsKnown(lexeme.strip())):
+                        # lexemes.append(identifiers[codeLanguage][lexeme.strip()])
                         lexemes.append(lexeme.strip())
                         previousTokenKnown = True
                     else:
@@ -103,8 +119,8 @@ def lexicalAnalysis():
 
                     lexeme = ''
 
-        if (tokenIsKnown(lexeme)):
-            #lexemes.append(identifiers[codeLanguage][lexeme.strip()].strip())
+        if (tokenIsKnown(lexeme.strip())):
+            # lexemes.append(identifiers[codeLanguage][lexeme.strip()].strip())
             lexemes.append(lexeme.strip())
             previousTokenKnown = True
         else:
@@ -114,7 +130,6 @@ def lexicalAnalysis():
                 lexemes.append(lexeme)
             previousTokenKnown = False
 
-    print(lexemes)
     return lexemes
 
 
@@ -131,7 +146,14 @@ def tokenAnalysis(tokens):
 
 
 def tokenIsKnown(token):
-    return token.strip() in identifiers[codeLanguage].values()
+    #return re.match(token.strip(), ' '.join(identifiers[codeLanguage].values()), flags=re.IGNORECASE)
+    if token.strip().lower() in identifiers[codeLanguage].values():
+        print('TOKEN ' + token.strip().lower() + ' KNOWN!')
+        return True
+    else:
+        print('TOKEN ' + token.strip().lower() + ' NOT KNOWN!')
+        return False
+
 
 
 
@@ -230,7 +252,7 @@ def generateCode():
     i = 0
     while len(tokens) > 0:
         translatedCode += parseCode()
-        print('Compiling .' + ' .'*i, end='\r')
+        print('Compiling .' + ' .'*min(i,20), end='\r')
         i += 1
 
     return translatedCode
@@ -239,6 +261,7 @@ def generateCode():
 def main():
     global sourceFile, sourceLines, tokens, outputPyFile
 
+    """
     try:
         # Get the arguments from the command line
         parser = argparse.ArgumentParser(description='Compile tomscript code.')
@@ -260,7 +283,12 @@ def main():
         outputExeFile = None if raw == '' else raw
         raw = input('Disable enter-quit message (y/n, default n): ').strip().lower()
         instantExit = False if raw == 'n' or raw == '' else True
+    """
 
+    sourceFile = './tests/new.tms'
+    instantExit = False
+    outputPyFile = './tests/new.py'
+    outputExeFile = None
 
     startTime = datetime.datetime.now() # Get the time of the start of operations
 
@@ -268,7 +296,10 @@ def main():
     sourceLines = loadSourceFile() # Read the TMS source file
     featureDetection() # Detect features of the script
     intialTokenReplacement() # Replace intial tokens according to the chosen language
+
     tokens = lexicalAnalysis() # Analyse and split the code into tokens
+    print(tokens)
+
     code = generateCode() # Generate the code from the tokens
 
 
