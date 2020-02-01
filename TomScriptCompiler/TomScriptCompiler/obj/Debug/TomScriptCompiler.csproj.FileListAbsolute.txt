@@ -4,3 +4,9 @@ D:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\bin\Debug\TomScriptCompil
 D:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\obj\Debug\TomScriptCompiler.csprojAssemblyReference.cache
 D:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\obj\Debug\TomScriptCompiler.exe
 D:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\obj\Debug\TomScriptCompiler.pdb
+E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\bin\Debug\TomScriptCompiler.exe.config
+E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\bin\Debug\TomScriptCompiler.exe
+E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\bin\Debug\TomScriptCompiler.pdb
+E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\obj\Debug\TomScriptCompiler.csprojAssemblyReference.cache
+E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\obj\Debug\TomScriptCompiler.exe
+E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\obj\Debug\TomScriptCompiler.pdb
