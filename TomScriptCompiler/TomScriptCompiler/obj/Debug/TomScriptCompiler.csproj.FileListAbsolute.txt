@@ -10,3 +10,9 @@ E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\bin\Debug\TomScriptCompil
 E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\obj\Debug\TomScriptCompiler.csprojAssemblyReference.cache
 E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\obj\Debug\TomScriptCompiler.exe
 E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\obj\Debug\TomScriptCompiler.pdb
+E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\obj\Debug\TomScriptCompiler.Form1.resources
+E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\obj\Debug\TomScriptCompiler.csproj.GenerateResource.cache
+E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\bin\Debug\Ookii.Dialogs.WinForms.dll
+E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\bin\Debug\Ookii.Dialogs.WinForms.pdb
+E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\bin\Debug\Ookii.Dialogs.WinForms.xml
+E:\Repos\tomscript\TomScriptCompiler\TomScriptCompiler\obj\Debug\TomScriptCompiler.csproj.CopyComplete

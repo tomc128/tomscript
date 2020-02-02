@@ -2,17 +2,15 @@
 #### A completely useless yet undeniably awesome programming language.
 
 This language was created as an extremely high-level programming language suitable for anyone to learn! Originally started as a joke, we have been able to create a fully-functioning coding language for all to enjoy!
-TomScript is built atop a Python-based compiler, which results in an extremely light-weight and efficient language.
+TomScript code is compiled using a custom C# compiler into Python.
 
 
 ## Features
 
 - Console printing
 - Variable declaration
-- Calculation
 - Simple and human-readable syntax
 - Effortless build configuration
-- Exe and Python build support
 
 
 ## How to use TomScript
@@ -23,13 +21,16 @@ Using TomScript is simple! Simply create a `.tms` file containing your code, edi
 ## System Requirements
 
 - Windows 7 or newer
-- Python 3.7 or newer
+- .NET Framework for compilation of scripts
+- Python 3.x for execution of scripts
 
 
 ## Basic syntax
 
 Every TomScript program is structured in the following way:
     
+    code properties
+
     start
 
     // code
@@ -38,17 +39,20 @@ Every TomScript program is structured in the following way:
 
 As you can see, the "start" and "end" syntax signals to the compiler the start and end of the code.
 
-### Printing to screen
+## Code Properties
 
-Printing to the screen is called using the "write" syntax. Simply type "write" followed by the string, integer or variable you wish to print.
+TomScript currently has one property that can be changed on a script-by-script basis.
 
-    write Hello, world!
+    language {language}
 
-### Reading user input
+This changes the language subset used in the code. Each language subset contains different words for each command.
+Currently, these languages exist:
 
-To read input from the user, simply use the "user input" syntax, as shown:
+    standard
+    friendly
+    fancy
 
-    set variablename to user input
+The default languge is `standard`, and this will be used in the documentation here on out.
 
 ### Creating a variable
 
@@ -59,9 +63,13 @@ Creating a variable is simple! Use the "create variable" syntax, as follows:
 
 Want to set a default value? Just use:
 
-    create variable name and set variable to Steve
+    create variable name and set name to Steve
 
-Here, we use "and" to tell the compiler to combine these operations.
+## Combining commands
+
+As you can see from the example above, commands can be combined with the command `and`, which may vary across language subsets.
+
+    write Welcome to TomScript! and set input to read
 
 ### Setting a variable
 
@@ -69,41 +77,63 @@ Want to change the value of a variable during your program? That's easy:
 
     set name to Jim
 
+TomScript automatically detects the value of the variable from a set statement. This means you'll need to set a default value in order to use numbers in calculations or loops.
+
 ### Calculating values
 
-Want to add some spice to your life using numbers? Just use the "calculate" statement:
+The new compiler does not yet support calculations.
 
-    calculate 6 + 7
+### Printing to screen
 
-To use the result of this calculation, TomScript handily creates a variable called "result" which works just like any other variable!
+Printing to the screen is called using the "write" syntax. Simply type "write" followed by the string, integer or variable you wish to print.
 
-    write result
-    create variable calculation and set calculation to result
+    write Hello, world!
+
+    write So, you are called name?
+
+### Reading user input
+
+To read input from the user, simply use the `read` command, as shown:
+
+    set variablename to read
 
 ### Comments
 
-TomScript supports comments, meaning you can annotate your code without the compiler adding it to your program! Simply precede your comment with "//" like so:
+The new compiler does not yet support comments.
 
-    // this is a comment!
+### Loops
 
+A forever loop will execute the code inside of it continually:
 
-## Configuration
+    repeat forever
 
-The `tms.config` file specifies the options that the compiler should use. It includes the following fields:
+    // code
 
-    source sourceCode.tms
-    output sourceCode.tms.py
+    stop
 
-The `source` parameter specifies the input TomScript, and the `output` parameter specifies the Python output file. You should set these to your desired source file and output file.
+Don't want an endless loop? TomScript has you covered with another loop:
 
+    repeat 10 times
 
-### Supported build parameters
+    // code
 
-    option compile comments // when building to a Python file, this option converts your code's comments to Python comments
-    
-    option compile executable // this option builds to an exe file, as well as a Python file
-    
-    option compile debug // this option builds to an exe file, while retaining all temporary build files that are generated
+    stop
+
+Remember, you can replace `10` with any integer variable you like.
+
+## Compiler UI
+
+The new compiler comes with a slick new UI.
+
+![Compiler UI](img/Compiler.png)
+
+TomScript files can be added by pasting the path of one at the top of the program, or by using the browse button. You'll need to click `+ Add Source File` for the file to be added to the queue. Alternatively, select multiple files with the browse button and they will be automatically added.
+
+The centre of the program shows the queue of files to process, with checkboxes in case you'd like to only compile certain files that you've added.
+
+Beneath this is the output directory text box, complete with browse button.
+
+Finally, the compile button lets you compile the checked scripts.
 
 
 Any questions? Feel free to create an issue or fork the repo and fix it yourself!
