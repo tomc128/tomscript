@@ -285,9 +285,9 @@ def main():
         instantExit = False if raw == 'n' or raw == '' else True
     """
 
-    sourceFile = './tests/new.tms'
+    sourceFile = './tests/script-one.tms'
     instantExit = False
-    outputPyFile = './tests/new.py'
+    outputPyFile = './tests/script-one-old.py'
     outputExeFile = None
 
     startTime = datetime.datetime.now() # Get the time of the start of operations

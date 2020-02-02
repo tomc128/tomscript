@@ -14,8 +14,8 @@ namespace TomScriptCompiler
     {
         private const string identation = "    ";
 
-        private static string sourceFile = @"E:\Repos\tomscript\tests\script-three.tms";
-        private static string outputFile = @"E:\Repos\tomscript\tests\script-three.py";
+        private static string sourceFile = @"E:\Repos\tomscript\tests\script-one.tms";
+        private static string outputFile = @"E:\Repos\tomscript\tests\script-one.py";
 
         private static string languagePath = @"E:\Repos\tomscript\lang\";
         private static string language = "friendly";
@@ -68,8 +68,6 @@ namespace TomScriptCompiler
             ReadFile();
             IndentifierIdentification();
             TokeniseSource();
-            PrintTokens();
-            ParseTokens();
             GenerateCode();
             var endTime = DateTime.Now;
             var timeTaken = endTime - startTime;
@@ -97,16 +95,8 @@ namespace TomScriptCompiler
         static void ReadFile()
         {
             source = File.ReadAllText(sourceFile);
-
-            Regex languageRegex = new Regex(@"language [a-zA-Z]+");
-            foreach (var line in source.Split('\n'))
-            {
-                if (languageRegex.IsMatch(line)) language = languageRegex.Match(line).Value.Split(' ')[1];
-            }
-
+            language = Regex.Match(source, @"language ([a-zA-Z])+", RegexOptions.IgnoreCase).Value.Split(' ')[1];
             print("Detected language: " + language);
-
-            //source = source.Substring(source.IndexOf(translations[language][identifiers.IndexOf("START_PROGRAM")])) + "\n";
         }
 
 
@@ -115,7 +105,7 @@ namespace TomScriptCompiler
             string newSource = source;
             foreach (var identifier in translations[language])
             {
-                newSource = Regex.Replace(newSource, $@"(\s*){identifier}(\s+)", $"$1{identifiers[translations[language].IndexOf(identifier)]}$2");
+                newSource = Regex.Replace(newSource, $@"([\s]*){identifier}([\s]+)", $"$1{identifiers[translations[language].IndexOf(identifier)]}$2");
             }
             source = newSource;
         }
@@ -125,12 +115,9 @@ namespace TomScriptCompiler
         {
             foreach (var line in source.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                foreach (var word in Regex.Split(line, @"(?<=[ ])"))
+                foreach (var word in Regex.Split(line, @"(?<=[ ]+)|([!,][ ]*)"))
                 {
                     if (string.IsNullOrEmpty(word.Trim())) continue;
-
-                    // The line below was needed without the regex-powered identifier identification
-                    // int index = translations[language].IndexOf(word.ToLower().Trim());
 
                     int index = identifiers.IndexOf(word.Trim());
                     tokenQueue.Enqueue(index != -1 ? identifiers[index] : word.Trim(new char[] { '\r' }));
@@ -146,9 +133,7 @@ namespace TomScriptCompiler
             string token = tokenQueue.Dequeue();
             string code = prefix;
 
-            print($"-> PARSING '{token}'");
-
-            switch (token)
+            switch (token.Trim())
             {
                 case "|":
                     break;
@@ -160,7 +145,9 @@ namespace TomScriptCompiler
                     while (token != "|")
                     {
                         if (variables.ContainsKey(token))
-                            code += $"' + {EscapeValue(token)} + ' ";
+                        {
+                            code += $"' + {EscapeValue(token)} + '";
+                        }
                         else
                             code += EscapeValue(token);
 
@@ -203,8 +190,17 @@ namespace TomScriptCompiler
                             token = tokenQueue.Dequeue();
                         }
 
-                        variables[variableName] = variableValue;
-                        code += $"{variableName} = '{EscapeValue(variableValue)}'\n";
+                        // Check if the variable is a number
+                        if (Regex.IsMatch(variableValue, @"^\d+.*\d*$"))
+                        {
+                            variables[variableName] = float.Parse(variableValue);
+                            code += $"{variableName} = {EscapeValue(variableValue)}\n";
+                        }
+                        else
+                        {
+                            variables[variableName] = variableValue;
+                            code += $"{variableName} = '{EscapeValue(variableValue)}'\n";
+                        }
                     }
 
                     break;
@@ -243,8 +239,6 @@ namespace TomScriptCompiler
                     break;
             }
 
-            print($"-> PARSED '{code.Replace('\n', '/')}'");
-
             return code;
         }
 
@@ -259,10 +253,13 @@ namespace TomScriptCompiler
             while (tokenQueue.Count > 0)
             {
                 generatedCode += ParseTokens();
-                Console.WriteLine("Compiling" + new string('.', i++));
+                Console.Write("Compiling" + new string('.', Math.Min(i++, Console.WindowWidth - 15)) + "\r");
             }
 
             generatedCode += "input()";
+
+            // Remove 2 or 3 spaces, but not 4 spaces in a row
+            //generatedCode = Regex.Replace(generatedCode, "  +(?! {4})", " ");
 
             File.WriteAllText(outputFile, generatedCode);
             Process.Start(Path.GetDirectoryName(outputFile));
