@@ -1,12 +1,18 @@
-/tests/
-/dist/
-/build/
+tests/
 *.spec
-/.vscode/
+.vscode/
 
 
+[Bb]uild/
 [Dd]ebug/
 [Rr]elease/
 x64/
 [Bb]in/
 [Oo]bj/
+
+*.cache
+.vs/
+
+*.exe
+*.exe.config
+*.pdb

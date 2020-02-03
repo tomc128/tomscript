@@ -41,10 +41,14 @@ namespace TomScriptCompiler
                     {
                         sourceList.Items.Add(dialog.FileNames[i], true);
                     }
+
+                    if (outputDirBox.Text == "") outputDirBox.Text = Path.GetDirectoryName(dialog.FileName);
                 }
                 else
                 {
                     sourcePathBox.Text = dialog.FileName;
+
+                    if (outputDirBox.Text == "") outputDirBox.Text = Path.GetDirectoryName(dialog.FileName);
                 }
             }
         }

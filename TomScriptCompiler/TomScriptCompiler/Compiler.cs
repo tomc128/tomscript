@@ -10,10 +10,10 @@ namespace TomScriptCompiler
     {
         private const string indentation = "    ";
 
-        private string sourceFile = @"E:\Repos\tomscript\tests\while-conditional.tms";
-        private string outputFile = @"E:\Repos\tomscript\tests\while-conditional.tms.py";
+        private string sourceFile = "";
+        private string outputFile = "";
+        private string languagePath = @".\lang\";
 
-        private string languagePath = @"E:\Repos\tomscript\lang\";
         private string language = "standard";
         private string source;
         private Queue<string> tokenQueue = new Queue<string>();
@@ -26,7 +26,7 @@ namespace TomScriptCompiler
             "CREATE",
             "VARIABLE",
             "WRITE",
-            "READ",
+            "USER_INPUT",
             "SET",
             "CALCULATE",
             "REPEAT",
@@ -41,10 +41,27 @@ namespace TomScriptCompiler
             "IF_ELSE",
             "IF_END",
             "IS_EQUAL_TO",
+            "IS_NOT_EQUAL_TO",
             "IS_GREATER_THAN",
+            "IS_GREATER_THAN_OR_EQUAL_TO",
             "IS_LESS_THAN",
+            "IS_LESS_THAN_OR_EQUAL_TO",
+            "IS_EVEN",
+            "IS_ODD",
+            "BLANK_LINE",
             "TO"
         };
+        private List<string> operations = new List<string> {
+            "IS_EQUAL_TO",
+            "IS_NOT_EQUAL_TO",
+            "IS_GREATER_THAN",
+            "IS_GREATER_THAN_OR_EQUAL_TO",
+            "IS_LESS_THAN",
+            "IS_LESS_THAN_OR_EQUAL_TO",
+            "IS_EVEN",
+            "IS_ODD"
+        };
+
         private Dictionary<string, List<string>> translations = new Dictionary<string, List<string>>();
 
         private string generatedCode = "";
@@ -66,13 +83,11 @@ namespace TomScriptCompiler
             ReadFile();
             IndentifierIdentification();
             TokeniseSource();
-            PrintTokens();
             GenerateCode();
             var endTime = DateTime.Now;
             var timeTaken = endTime - startTime;
 
             Console.WriteLine($"Compilation finished in {timeTaken.TotalMilliseconds}ms");
-            Console.ReadLine();
         }
 
         void LoadLanguages()
@@ -122,7 +137,7 @@ namespace TomScriptCompiler
             print("Tokenising the source file...");
             foreach (var line in source.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                foreach (var word in Regex.Split(line, @"(?<=[ ]+)|([!,][ ]*)"))
+                foreach (var word in Regex.Split(line, @"(?<=[ ]+)|([!,.:?(){}\[\]][ ]*)"))
                 {
                     if (string.IsNullOrEmpty(word.Trim())) continue;
 
@@ -156,12 +171,21 @@ namespace TomScriptCompiler
                         if (variables.ContainsKey(token.Trim()))
                         {
                             if (token.EndsWith(" "))
-                                code += $"' + {EscapeValue(token.Trim())} + ' ";
+                            {
+                                if (variables[token.Trim()] == typeof(float) || variables[token.Trim()] == typeof(int)) code += $"' + str({EscapeValue(token.Trim())}) + ' ";
+                                else code += $"' + {EscapeValue(token.Trim())} + ' ";
+                            }
                             else
-                                code += $"' + {EscapeValue(token.Trim())} + '";
+                            {
+                                if (variables[token.Trim()] == typeof(float) || variables[token.Trim()] == typeof(int)) code += $"' + str({EscapeValue(token.Trim())}) + '";
+                                else code += $"' + {EscapeValue(token.Trim())} + '";
+                            }
                         }
                         else
-                            code += EscapeValue(token);
+                        {
+                            if (token == "BLANK_LINE") code += "";
+                            else code += EscapeValue(token);
+                        }
 
                         token = tokenQueue.Peek();
                     }
@@ -194,7 +218,7 @@ namespace TomScriptCompiler
                         string variableValue = "";
 
                         token = tokenQueue.Peek();
-                        if (token == "READ")
+                        if (token == "USER_INPUT")
                         {
                             token = tokenQueue.Dequeue();
                             if (variables[variableName] == typeof(float)) code += $"{variableName} = float(input())\n";
@@ -209,6 +233,8 @@ namespace TomScriptCompiler
                                 variableValue += token;
                                 token = tokenQueue.Peek();
                             }
+
+                            variableValue = variableValue.Trim();
 
                             if (Regex.IsMatch(variableValue, @"^\d+\.+\d+$"))
                             {
@@ -259,26 +285,41 @@ namespace TomScriptCompiler
                         var rightParams = new List<string>();
                         string operation = "";
 
-                        while (token != "IS_EQUAL_TO" && token != "IS_GREATER_THAN" && token != "IS_LESS_THAN")
+                        while (!operations.Contains(token))
                         {
                             token = tokenQueue.Dequeue();
                             leftParams.Add(token.Trim());
                             token = tokenQueue.Peek();
                         }
 
+                        bool isOneSidedOperator = false;
+
                         switch (token)
                         {
                             case "IS_EQUAL_TO":
                                 operation = "==";
                                 break;
+                            case "IS_NOT_EQUAL_TO":
+                                operation = "!=";
+                                break;
                             case "IS_GREATER_THAN":
                                 operation = ">";
                                 break;
-                            case "IS_LESS_THAN":
-                                operation = "<";
+                            case "IS_GREATER_THAN_OR_EQUAL_TO":
+                                operation = ">=";
                                 break;
+                            case "IS_LESS_THAN_OR_EQUAL_TO":
+                                operation = "<=";
+                                break;
+                            case "IS_EVEN":
+                                isOneSidedOperator = true;
+                                operation = "%2==0";
+                                break;
+                            default:
+                                throw new InvalidOperationException($"The operation '{token}' is invalid.");
                         }
 
+                        if (isOneSidedOperator) token = tokenQueue.Dequeue();
                         token = tokenQueue.Dequeue();
 
                         while (token != "|" && token.Trim() != "//")
@@ -290,8 +331,6 @@ namespace TomScriptCompiler
 
 
                         string left = "";
-                        string right = "";
-
                         for (int i = 0; i < leftParams.Count; i++)
                         {
                             if (variables.ContainsKey(leftParams[i].Trim()))
@@ -300,7 +339,9 @@ namespace TomScriptCompiler
                             }
                             else
                             {
-                                left += $"'{EscapeValue(leftParams[i])}'";
+                                if (GetValueType(leftParams[i]) == typeof(float) || GetValueType(leftParams[i]) == typeof(int)) left += EscapeValue(leftParams[i]).Trim();
+                                else left += $"'{EscapeValue(leftParams[i]).Trim()}'";
+
                                 if (i - 1 >= 0)
                                 {
                                     if (variables.ContainsKey(leftParams[i - 1].Trim())) left = "+" + left.Trim();
@@ -312,6 +353,7 @@ namespace TomScriptCompiler
                             }
                         }
 
+                        string right = "";
                         for (int i = 0; i < rightParams.Count; i++)
                         {
                             if (variables.ContainsKey(rightParams[i].Trim()))
@@ -320,7 +362,9 @@ namespace TomScriptCompiler
                             }
                             else
                             {
-                                right += $"'{EscapeValue(rightParams[i]).Trim()}'";
+                                if (GetValueType(rightParams[i]) == typeof(float) || GetValueType(rightParams[i]) == typeof(int)) right += EscapeValue(rightParams[i]).Trim();
+                                else right += $"'{EscapeValue(rightParams[i]).Trim()}'";
+
                                 if (i - 1 >= 0)
                                 {
                                     if (variables.ContainsKey(rightParams[i - 1].Trim())) right = "+" + right.Trim();
@@ -331,14 +375,14 @@ namespace TomScriptCompiler
                                 }
                             }
                         }
-
-
                         code += $"while ({left} {operation} {right}):\n";
-                                               
+
+                        token = tokenQueue.Peek();
+
                         while (token != "REPEAT_END")
                         {
                             code += ParseTokens(prefix = indentation);
-                            token = tokenQueue.Dequeue();
+                            token = tokenQueue.Peek();
                         }
                     }
                     else
@@ -355,7 +399,7 @@ namespace TomScriptCompiler
                     }
                     break;
 
-                case "READ":
+                case "USER_INPUT":
                     code += "input()\n";
                     break;
 
@@ -364,31 +408,47 @@ namespace TomScriptCompiler
                         token = tokenQueue.Peek();
                         var leftParams = new List<string>();
                         var rightParams = new List<string>();
-                        string ifOperation = "";
+                        string operation = "";
 
-                        while (token != "IS_EQUAL_TO" && token != "IS_GREATER_THAN" && token != "IS_LESS_THAN")
+                        while (!operations.Contains(token))
                         {
                             token = tokenQueue.Dequeue();
                             leftParams.Add(token.Trim());
                             token = tokenQueue.Peek();
                         }
 
+
+                        bool isOneSidedOperator = false;
+
                         switch (token)
                         {
                             case "IS_EQUAL_TO":
-                                ifOperation = "==";
+                                operation = "==";
+                                break;
+                            case "IS_NOT_EQUAL_TO":
+                                operation = "!=";
                                 break;
                             case "IS_GREATER_THAN":
-                                ifOperation = ">";
+                                operation = ">";
                                 break;
-                            case "IS_LESS_THAN":
-                                ifOperation = "<";
+                            case "IS_GREATER_THAN_OR_EQUAL_TO":
+                                operation = ">=";
                                 break;
+                            case "IS_LESS_THAN_OR_EQUAL_TO":
+                                operation = "<=";
+                                break;
+                            case "IS_EVEN":
+                                isOneSidedOperator = true;
+                                operation = "%2==0";
+                                break;
+                            default:
+                                throw new InvalidOperationException($"The operation '{token}' is invalid.");
                         }
 
+                        if (isOneSidedOperator) token = tokenQueue.Dequeue();
                         token = tokenQueue.Dequeue();
 
-                        while (token != "|" && token.Trim() != "//")
+                        while (token.Trim() != "|" && token.Trim() != "//")
                         {
                             token = tokenQueue.Dequeue();
                             rightParams.Add(token);
@@ -397,7 +457,6 @@ namespace TomScriptCompiler
 
 
                         string left = "";
-                        string right = "";
 
                         for (int i = 0; i < leftParams.Count; i++)
                         {
@@ -407,7 +466,9 @@ namespace TomScriptCompiler
                             }
                             else
                             {
-                                left += $"'{EscapeValue(leftParams[i])}'";
+                                if (GetValueType(leftParams[i]) == typeof(float) || GetValueType(leftParams[i]) == typeof(int)) left += EscapeValue(leftParams[i]).Trim();
+                                else left += $"'{EscapeValue(leftParams[i]).Trim()}'";
+
                                 if (i - 1 >= 0)
                                 {
                                     if (variables.ContainsKey(leftParams[i - 1].Trim())) left = "+" + left.Trim();
@@ -419,15 +480,23 @@ namespace TomScriptCompiler
                             }
                         }
 
+                        string right = "";
                         for (int i = 0; i < rightParams.Count; i++)
                         {
+                            if (rightParams[i].Trim() == "|")
+                            {
+                                right = " and 1 == 1";
+                                break;
+                            }
                             if (variables.ContainsKey(rightParams[i].Trim()))
                             {
                                 right += rightParams[i];
                             }
                             else
                             {
-                                right += $"'{EscapeValue(rightParams[i]).Trim()}'";
+                                if (GetValueType(rightParams[i]) == typeof(float) || GetValueType(rightParams[i]) == typeof(int)) right += EscapeValue(rightParams[i]).Trim();
+                                else right += $"'{EscapeValue(rightParams[i]).Trim()}'";
+
                                 if (i - 1 >= 0)
                                 {
                                     if (variables.ContainsKey(rightParams[i - 1].Trim())) right = "+" + right.Trim();
@@ -438,7 +507,9 @@ namespace TomScriptCompiler
                                 }
                             }
                         }
-                        code += $"if({left.Trim()} {ifOperation.Trim()} {right.Trim()}):\n";
+                        code += $"if({left.Trim()} {operation.Trim()} {right.Trim()}):\n";
+
+
 
                         while (token != "IF_END" && token != "IF_ELSE" && token != "IF_ELSE_IF")
                         {
@@ -453,28 +524,43 @@ namespace TomScriptCompiler
                         token = tokenQueue.Peek();
                         var leftParams = new List<string>();
                         var rightParams = new List<string>();
-                        string ifOperation = "";
+                        string operation = "";
 
-                        while (token != "IS_EQUAL_TO" && token != "IS_GREATER_THAN" && token != "IS_LESS_THAN")
+                        while (!operations.Contains(token))
                         {
                             token = tokenQueue.Dequeue();
                             leftParams.Add(token.Trim());
                             token = tokenQueue.Peek();
                         }
 
+                        bool isOneSidedOperator = false;
+
                         switch (token)
                         {
                             case "IS_EQUAL_TO":
-                                ifOperation = "==";
+                                operation = "==";
+                                break;
+                            case "IS_NOT_EQUAL_TO":
+                                operation = "!=";
                                 break;
                             case "IS_GREATER_THAN":
-                                ifOperation = ">";
+                                operation = ">";
                                 break;
-                            case "IS_LESS_THAN":
-                                ifOperation = "<";
+                            case "IS_GREATER_THAN_OR_EQUAL_TO":
+                                operation = ">=";
                                 break;
+                            case "IS_LESS_THAN_OR_EQUAL_TO":
+                                operation = "<=";
+                                break;
+                            case "IS_EVEN":
+                                isOneSidedOperator = true;
+                                operation = "%2==0";
+                                break;
+                            default:
+                                throw new InvalidOperationException($"The operation '{token}' is invalid.");
                         }
 
+                        if (isOneSidedOperator) token = tokenQueue.Dequeue();
                         token = tokenQueue.Dequeue();
 
                         while (token != "|" && token != "//")
@@ -486,8 +572,6 @@ namespace TomScriptCompiler
 
 
                         string left = "";
-                        string right = "";
-
                         for (int i = 0; i < leftParams.Count; i++)
                         {
                             if (variables.ContainsKey(leftParams[i].Trim()))
@@ -496,7 +580,9 @@ namespace TomScriptCompiler
                             }
                             else
                             {
-                                left += $"'{EscapeValue(leftParams[i])}'";
+                                if (GetValueType(leftParams[i]) == typeof(float) || GetValueType(leftParams[i]) == typeof(int)) left += EscapeValue(leftParams[i]).Trim();
+                                else left += $"'{EscapeValue(leftParams[i]).Trim()}'";
+
                                 if (i - 1 >= 0)
                                 {
                                     if (variables.ContainsKey(leftParams[i - 1].Trim())) left = "+" + left;
@@ -508,6 +594,7 @@ namespace TomScriptCompiler
                             }
                         }
 
+                        string right = "";
                         for (int i = 0; i < rightParams.Count; i++)
                         {
                             if (variables.ContainsKey(rightParams[i].Trim()))
@@ -516,7 +603,9 @@ namespace TomScriptCompiler
                             }
                             else
                             {
-                                right += $"'{EscapeValue(rightParams[i])}'";
+                                if (GetValueType(rightParams[i]) == typeof(float) || GetValueType(rightParams[i]) == typeof(int)) right += EscapeValue(rightParams[i]).Trim();
+                                else right += $"'{EscapeValue(rightParams[i]).Trim()}'";
+
                                 if (i - 1 >= 0)
                                 {
                                     if (variables.ContainsKey(rightParams[i - 1].Trim())) right = "+" + right;
@@ -527,7 +616,7 @@ namespace TomScriptCompiler
                                 }
                             }
                         }
-                        code += $"elif({left} {ifOperation} {right}):\n";
+                        code += $"elif({left} {operation} {right}):\n";
 
                         while (token != "IF_END" && token != "IF_ELSE" && token != "IF_ELSE_IF")
                         {
@@ -565,6 +654,17 @@ namespace TomScriptCompiler
             return code;
         }
 
+
+        private Type GetValueType(string value)
+        {
+            value = value.Trim();
+
+            if (Regex.IsMatch(value, @"^\d+\.+\d+$")) return typeof(float);
+            else if (Regex.IsMatch(value, @"^\d+$")) return typeof(int);
+            else return typeof(string);
+        }
+
+
         private string EscapeValue(string value)
         {
             return value.Replace("'", "\\'");
@@ -579,10 +679,7 @@ namespace TomScriptCompiler
                 Console.Write("Compiling...\r");
             }
 
-            generatedCode += "input()";
-
-            // Remove 2 or 3 spaces, but not 4 spaces in a row
-            //generatedCode = Regex.Replace(generatedCode, "  +(?! {4})", " ");
+            generatedCode += "print('Press enter to quit...'); input()";
 
             File.WriteAllText(outputFile, generatedCode);
         }
@@ -606,5 +703,11 @@ namespace TomScriptCompiler
     {
         public VariableNotDefinedException() { }
         public VariableNotDefinedException(string message) : base(message) { }
+    }
+
+    public class InvalidOperationException : Exception
+    {
+        public InvalidOperationException() { }
+        public InvalidOperationException(string message) : base(message) { }
     }
 }
