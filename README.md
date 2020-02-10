@@ -15,13 +15,13 @@ TomScript code is compiled using a custom C# compiler into Python.
 
 ## How to use TomScript
 
-Using TomScript is simple! Simply create a `.tms` file containing your code, edit the config to your preference, and run the compiler!
+Using TomScript is simple! Simply create a `.tms` file containing your code, and run the compiler!
 
 
 ## System Requirements
 
 - Windows 7 or newer
-- .NET Framework for compilation of scripts
+- .NET Framework 4.8 for compilation of scripts
 - Python 3.x for execution of scripts
 
 
@@ -65,7 +65,7 @@ Want to set a default value? Just use:
 
     create variable name and set name to Steve
 
-## Combining commands
+### Combining commands
 
 As you can see from the example above, commands can be combined with the command `and`, which may vary across language subsets.
 
@@ -81,7 +81,7 @@ TomScript automatically detects the value of the variable from a set statement. 
 
 ### Calculating values
 
-The new compiler does not yet support calculations.
+The new compiler does not yet support calculations, I'm working on it - gimme a few days.
 
 ### Printing to screen
 
@@ -99,7 +99,10 @@ To read input from the user, simply use the `read` command, as shown:
 
 ### Comments
 
-The new compiler does not yet support comments.
+Commenting your code allows for inline explanations, and it's easy in TomScript; simply precede your comment with two forward slashes:
+
+    set numTwo to 13 // Set the value of the second number
+    // Oh look, they can be on their own line, too!
 
 ### Loops
 
