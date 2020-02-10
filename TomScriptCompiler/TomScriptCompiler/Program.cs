@@ -13,12 +13,12 @@ namespace TomScriptCompiler
     static class Program
     {
         /// <summary>
-        /// TomScript Compiler compiles TomScript code into executable Python
+        /// TomScriptCompiler compiles TomScript into Python
         /// </summary>
-        /// <param name="compile">Whether the compiler instantly compiles, or shows the UI</param>
-        /// <param name="outputDir">The directory to output files to</param>
-        /// <param name="source">The source TomScript file(s) for compilation</param>
-        /// <param name="outputExe">Whether the compiler should also generate an executable exe file</param>
+        /// <param name="compile">Whether to instantaneously compile using arguments, or open up the UI and populate the controls</param>
+        /// <param name="source">The source tms file(s)</param>
+        /// <param name="outputDir">The directory to output all compiled files to</param>
+        /// <param name="outputExe">Whether to build an exe in addition to the py file</param>
         [STAThread]
         static void Main (bool compile = false, string[] source = null, string outputDir = null, bool outputExe = false)
         {
