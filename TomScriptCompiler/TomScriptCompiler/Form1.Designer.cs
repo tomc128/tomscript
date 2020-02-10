@@ -38,6 +38,7 @@
             this.outputDirBrowseBtn = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.exeFileCheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // addSourceBtn
@@ -102,13 +103,13 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.outputDirBox.Location = new System.Drawing.Point(92, 196);
             this.outputDirBox.Name = "outputDirBox";
-            this.outputDirBox.Size = new System.Drawing.Size(574, 20);
+            this.outputDirBox.Size = new System.Drawing.Size(468, 20);
             this.outputDirBox.TabIndex = 7;
             // 
             // outputDirBrowseBtn
             // 
             this.outputDirBrowseBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.outputDirBrowseBtn.Location = new System.Drawing.Point(672, 193);
+            this.outputDirBrowseBtn.Location = new System.Drawing.Point(566, 193);
             this.outputDirBrowseBtn.Name = "outputDirBrowseBtn";
             this.outputDirBrowseBtn.Size = new System.Drawing.Size(100, 25);
             this.outputDirBrowseBtn.TabIndex = 8;
@@ -135,11 +136,23 @@
             this.label2.TabIndex = 10;
             this.label2.Text = "Output Folder:";
             // 
+            // exeFileCheckBox
+            // 
+            this.exeFileCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.exeFileCheckBox.AutoSize = true;
+            this.exeFileCheckBox.Location = new System.Drawing.Point(672, 198);
+            this.exeFileCheckBox.Name = "exeFileCheckBox";
+            this.exeFileCheckBox.Size = new System.Drawing.Size(107, 17);
+            this.exeFileCheckBox.TabIndex = 11;
+            this.exeFileCheckBox.Text = "Create .exe file(s)";
+            this.exeFileCheckBox.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 261);
+            this.Controls.Add(this.exeFileCheckBox);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.outputDirBrowseBtn);
@@ -169,5 +182,6 @@
         private System.Windows.Forms.Button outputDirBrowseBtn;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.CheckBox exeFileCheckBox;
     }
 }

@@ -15,9 +15,20 @@ namespace TomScriptCompiler
 {
     public partial class Form1 : Form
     {
-        public Form1()
+
+        public Form1(string[] sourceFiles = null, string outputDir = null, bool compileExe = false)
         {
             InitializeComponent();
+
+            if (sourceFiles != null)
+            {
+                foreach (var file in sourceFiles) sourceList.Items.Add(file, true);
+            }
+            if (outputDir != null)
+            {
+                outputDirBox.Text = outputDir;
+            }
+            exeFileCheckBox.Checked = compileExe;
         }
 
         private void addSourceBtn_Click(object sender, EventArgs e)
@@ -65,7 +76,11 @@ namespace TomScriptCompiler
                     string scriptName = Path.GetFileName(sourceList.Items[i].ToString());
                     Console.WriteLine($"Initiating compilation of {scriptName}...");
 
-                    new Compiler(sourceList.Items[i].ToString(), Path.Combine(outputDirBox.Text, scriptName + ".py")).Compile();
+                    new Compiler(
+                        sourceList.Items[i].ToString(),
+                        Path.Combine(outputDirBox.Text, scriptName + ".py"),
+                        exeFileCheckBox.Checked ? Path.Combine(outputDirBox.Text, scriptName + ".exe") : null
+                    ).Compile();
 
                     sourceList.SetItemChecked(i, false);
                     Console.WriteLine($"Compilation of {scriptName} completed!\n");

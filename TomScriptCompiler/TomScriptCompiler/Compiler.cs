@@ -11,7 +11,8 @@ namespace TomScriptCompiler
         private const string indentation = "    ";
 
         private string sourceFile = "";
-        private string outputFile = "";
+        private string outputPyFile = "";
+        private string outputExeFile = "";
         private string languagePath = @".\lang\";
 
         private string language = "standard";
@@ -69,21 +70,24 @@ namespace TomScriptCompiler
 
         public Compiler() { }
 
-        public Compiler(string sourceFile, string outputFile)
+        public Compiler(string sourceFile, string outputPyFile, string outputExeFile = null)
         {
             this.sourceFile = sourceFile;
-            this.outputFile = outputFile;
+            this.outputPyFile = outputPyFile;
+            this.outputExeFile = outputExeFile;
         }
 
 
         public void Compile()
         {
+            print($"\n-- Starting compilation of {Path.GetFileName(sourceFile)} --");
             var startTime = DateTime.Now;
             LoadLanguages();
             ReadFile();
             IndentifierIdentification();
             TokeniseSource();
             GenerateCode();
+            if (outputExeFile != null) GenerateExe();
             var endTime = DateTime.Now;
             var timeTaken = endTime - startTime;
 
@@ -673,15 +677,33 @@ namespace TomScriptCompiler
         private void GenerateCode()
         {
             print("Starting code generation...");
+            int i = 0;
             while (tokenQueue.Count > 0)
             {
                 generatedCode += ParseTokens();
-                Console.Write("Compiling...\r");
+                Console.Write($"Compiling {new string('.', Math.Min(Console.WindowWidth - 20, i))}\r");
+                i++;
             }
+            print("");
 
             generatedCode += "print('Press enter to quit...'); input()";
 
-            File.WriteAllText(outputFile, generatedCode);
+            File.WriteAllText(outputPyFile, generatedCode);
+        }
+
+        private void GenerateExe()
+        {
+            print("Generating exe file...");
+            var process = new Process();
+            var startInfo = new ProcessStartInfo();
+            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            startInfo.FileName = "cmd.exe";
+            startInfo.Arguments = $"/C pip install pyinstaller&pyinstaller {outputPyFile} -F --distpath {Path.GetDirectoryName(outputExeFile)} -n {Path.GetFileName(outputExeFile)}&rmdir /Q /S build";
+            startInfo.RedirectStandardOutput = true;
+            startInfo.UseShellExecute = false;
+            process.StartInfo = startInfo;
+            process.Start();
+            process.WaitForExit();
         }
 
         void PrintTokens()
