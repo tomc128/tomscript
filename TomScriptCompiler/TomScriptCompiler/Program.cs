@@ -4,36 +4,36 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.CommandLine;
-using System.CommandLine.Binding;
 using System.IO;
+using System.Threading;
 
 namespace TomScriptCompiler
 {
     static class Program
     {
-        /// <summary>
-        /// TomScriptCompiler compiles TomScript into Python
-        /// </summary>
-        /// <param name="compile">Whether to instantaneously compile using arguments, or open up the UI and populate the controls</param>
-        /// <param name="source">The source tms file(s)</param>
-        /// <param name="outputDir">The directory to output all compiled files to</param>
-        /// <param name="outputExe">Whether to build an exe in addition to the py file</param>
         [STAThread]
-        static void Main (bool compile = false, string[] source = null, string outputDir = null, bool outputExe = false)
+        static void Main(string[] args)
         {
+            string source = null;
+            string outputDir = null;
+            bool outputExe = false;
+            bool compile = false;
+            if (args.Length >= 2)
+            {
+                source = args[0];
+                outputDir = args[1];
+                outputExe = args.Contains("--output-exe");
+                compile = args.Contains("--compile");
+            }
+
             if (compile)
             {
-                // The user has set the commandline argument to compile instantaneously
 
-                for (int i = 0; i < source.Length; i++)
-                {
-                    new Compiler(
-                        source[i],
-                        Path.Combine(outputDir, Path.GetFileName(source[i]) + ".py"), 
-                        outputExe ? Path.Combine(outputDir, Path.GetFileName(source[i]) + ".exe") : null
-                    ).Compile();
-                }
+                new Compiler(
+                    source,
+                    Path.Combine(outputDir, Path.GetFileName(source) + ".py"),
+                    outputExe ? Path.Combine(outputDir, Path.GetFileName(source) + ".exe") : null
+                ).Compile();
 
                 // compiler.exe --compile --source s.tms --output-exe
             }

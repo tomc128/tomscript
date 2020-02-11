@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Ookii.Dialogs.WinForms;
@@ -15,14 +16,13 @@ namespace TomScriptCompiler
 {
     public partial class Form1 : Form
     {
-
-        public Form1(string[] sourceFiles = null, string outputDir = null, bool compileExe = false)
+        public Form1(string source = null, string outputDir = null, bool compileExe = false)
         {
             InitializeComponent();
 
-            if (sourceFiles != null)
+            if (source != null)
             {
-                foreach (var file in sourceFiles) sourceList.Items.Add(file, true);
+                sourceList.Items.Add(source, true);
             }
             if (outputDir != null)
             {
@@ -39,7 +39,8 @@ namespace TomScriptCompiler
 
         private void browseSourceBtn_Click(object sender, EventArgs e)
         {
-            var dialog = new OpenFileDialog();
+            var dialog = new System.Windows.Forms.OpenFileDialog();
+            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             dialog.Title = "Select TomScript File";
             dialog.Filter = "TomScript files (*.tms)|*.tms|All files (*.*)|*.*";
             dialog.Multiselect = true;
@@ -66,6 +67,23 @@ namespace TomScriptCompiler
 
         private void compileBtn_Click(object sender, EventArgs e)
         {
+            if (sourceList.Items.Count == 0 && sourcePathBox.Text != "")
+            {
+                sourceList.Items.Add(sourcePathBox.Text, true);
+                sourcePathBox.Text = "";
+            }
+
+            if (sourceList.Items.Count == 0) 
+            {
+                MessageBox.Show("Please enter one or more valid TomScript source files.");
+                return;
+            }
+            if (outputDirBox.Text == "")
+            {
+                MessageBox.Show("Please enter a valid output directory.");
+                return;
+            }
+
             if (!Directory.Exists(outputDirBox.Text)) Directory.CreateDirectory(outputDirBox.Text);
 
             var startTime = DateTime.Now;
@@ -89,7 +107,7 @@ namespace TomScriptCompiler
             var endTime = DateTime.Now;
             var timeTaken = endTime - startTime;
 
-            Console.WriteLine($"Compilation of {sourceList.Items.Count} items finished in {timeTaken.TotalMilliseconds}ms!");
+            Console.WriteLine($"Compilation of {sourceList.Items.Count} item(s) finished in {timeTaken.TotalMilliseconds}ms!");
 
             Process.Start(outputDirBox.Text);
         }

@@ -1,4 +1,6 @@
-﻿namespace TomScriptCompiler
+﻿using System;
+
+namespace TomScriptCompiler
 {
     partial class Form1
     {

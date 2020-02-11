@@ -9,18 +9,7 @@ namespace TomScriptCompiler
     class Compiler
     {
         private const string indentation = "    ";
-
-        private string sourceFile = "";
-        private string outputPyFile = "";
-        private string outputExeFile = "";
-        private string languagePath = @".\lang\";
-
-        private string language = "standard";
-        private string source;
-        private Queue<string> tokenQueue = new Queue<string>();
-        private Dictionary<string, Type> variables = new Dictionary<string, Type>();
-
-        private List<string> identifiers = new List<string>()
+        private readonly List<string> identifiers = new List<string>()
         {
             "START_PROGRAM",
             "END_PROGRAM",
@@ -52,7 +41,7 @@ namespace TomScriptCompiler
             "BLANK_LINE",
             "TO"
         };
-        private List<string> operations = new List<string> {
+        private readonly List<string> operations = new List<string> {
             "IS_EQUAL_TO",
             "IS_NOT_EQUAL_TO",
             "IS_GREATER_THAN",
@@ -62,6 +51,16 @@ namespace TomScriptCompiler
             "IS_EVEN",
             "IS_ODD"
         };
+
+        private string sourceFile = "";
+        private string outputPyFile = "";
+        private string outputExeFile = "";
+        private string languagePath = @".\lang\";
+
+        private string language = "standard";
+        private string source;
+        private Queue<string> tokenQueue = new Queue<string>();
+        private Dictionary<string, Type> variables = new Dictionary<string, Type>();
 
         private Dictionary<string, List<string>> translations = new Dictionary<string, List<string>>();
 
@@ -176,12 +175,12 @@ namespace TomScriptCompiler
                         {
                             if (token.EndsWith(" "))
                             {
-                                if (variables[token.Trim()] == typeof(float) || variables[token.Trim()] == typeof(int)) code += $"' + str({EscapeValue(token.Trim())}) + ' ";
+                                if (variables[token.Trim()] == typeof(float) || variables[token.Trim()] == typeof(int) || variables[token.Trim()] == null) code += $"' + str({EscapeValue(token.Trim())}) + ' ";
                                 else code += $"' + {EscapeValue(token.Trim())} + ' ";
                             }
                             else
                             {
-                                if (variables[token.Trim()] == typeof(float) || variables[token.Trim()] == typeof(int)) code += $"' + str({EscapeValue(token.Trim())}) + '";
+                                if (variables[token.Trim()] == typeof(float) || variables[token.Trim()] == typeof(int) || variables[token.Trim()] == null) code += $"' + str({EscapeValue(token.Trim())}) + '";
                                 else code += $"' + {EscapeValue(token.Trim())} + '";
                             }
                         }
@@ -224,10 +223,22 @@ namespace TomScriptCompiler
                         token = tokenQueue.Peek();
                         if (token == "USER_INPUT")
                         {
-                            token = tokenQueue.Dequeue();
+                            tokenQueue.Dequeue();
                             if (variables[variableName] == typeof(float)) code += $"{variableName} = float(input())\n";
                             else if (variables[variableName] == typeof(int)) code += $"{variableName} = int(input())\n";
                             else code += $"{variableName} = input()\n";
+                        }
+                        else if (token == "RESULT")
+                        {
+                            tokenQueue.Dequeue();
+                            code += $"{variableName} = eval('";
+                            while (token != "|" && token.Trim() != "//")
+                            {
+                                token = tokenQueue.Dequeue();
+                                code += EscapeValue(token);
+                                token = tokenQueue.Peek();
+                            }
+                            code += "')\n";
                         }
                         else
                         {
@@ -663,8 +674,8 @@ namespace TomScriptCompiler
         {
             value = value.Trim();
 
-            if (Regex.IsMatch(value, @"^\d+\.+\d+$")) return typeof(float);
-            else if (Regex.IsMatch(value, @"^\d+$")) return typeof(int);
+            if (Regex.IsMatch(value, @"^-*\d+\.+\d+$")) return typeof(float);
+            else if (Regex.IsMatch(value, @"^-*\d+$")) return typeof(int);
             else return typeof(string);
         }
 
@@ -686,8 +697,7 @@ namespace TomScriptCompiler
             }
             print("");
 
-            generatedCode += "print('Press enter to quit...'); input()";
-
+            generatedCode = $"# Generated with TomScript Compiler - https://github.com/tomc128/tomscript \n{generatedCode}\nprint('Press enter to quit...')\ninput()";
             File.WriteAllText(outputPyFile, generatedCode);
         }
 
