@@ -121,6 +121,9 @@
   <data name="fancy" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\fancy.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="francais" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\francais.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
   <data name="friendly" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\friendly.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>

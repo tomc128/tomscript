@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TDSStudios.TomScriptCore
+namespace TDSStudios.TomScript.Core
 {
     class Program
     {

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TDSStudios.TomScriptCore.Properties {
+namespace TDSStudios.TomScript.Core.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TDSStudios.TomScriptCore.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TDSStudios.TomScriptCore.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TDSStudios.TomScript.Core.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -83,12 +83,45 @@ namespace TDSStudios.TomScriptCore.Properties {
         ///IS_EQUAL_TO=is equal to
         ///IS_NOT_EQUAL_TO=is not equal to
         ///IS_GREATER_THAN=is greater than
-        ///IS_GREATER_THAN_OR_EQuAL_TO=is greater than or equal to
+        ///IS_GREATER_THAN_OR_EQUAL_TO=is greater than or equal to
         ///IS [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string fancy {
             get {
                 return ResourceManager.GetString("fancy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to START_PROGRAM=début
+        ///END_PROGRAM=fin
+        ///CREATE=créer
+        ///VARIABLE=une variable
+        ///WRITE=écrire
+        ///USER_INPUT=entrée utilisateur
+        ///SET=définir
+        ///CALCULATE=calculer
+        ///REPEAT=répéter
+        ///FOREVER=pour toujours
+        ///TIMES=fois
+        ///WHILE=tandis que
+        ///REPEAT_END=arrêtez
+        ///|=et
+        ///RESULT=résultat
+        ///IF=si
+        ///IF_ELSE_IF=sinon si
+        ///IF_ELSE=autre
+        ///IF_END=terminé
+        ///IS_EQUAL_TO=est égal à
+        ///IS_NOT_EQUAL_TO=n&apos;est pas égal à
+        ///IS_GREATER_THAN=est supérieur à
+        ///IS_GREATER_THAN_OR_EQUAL_TO=est supérieur ou égal à
+        ///IS_LESS_THAN=est inférieur à
+        ///IS_LESS_THAN_O [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string francais {
+            get {
+                return ResourceManager.GetString("francais", resourceCulture);
             }
         }
         
@@ -141,7 +174,7 @@ namespace TDSStudios.TomScriptCore.Properties {
         ///IS_EQUAL_TO=is equal to
         ///IS_NOT_EQUAL_TO=is not equal to
         ///IS_GREATER_THAN=is greater than
-        ///IS_GREATER_THAN_OR_EQuAL_TO=is greater than or equal to
+        ///IS_GREATER_THAN_OR_EQUAL_TO=is greater than or equal to
         ///IS_LESS_THAN=is less than
         ///IS_LESS_THAN_OR_EQUAL_TO=is less than or equal to [rest of string was truncated]&quot;;.
         /// </summary>

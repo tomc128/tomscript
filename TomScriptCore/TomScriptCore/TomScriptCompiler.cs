@@ -4,12 +4,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace TDSStudios.TomScriptCore
+namespace TDSStudios.TomScript.Core
 {
     public class TomScriptCompiler
     {
-        private const string indentation = "    ";
-        private readonly List<string> identifiers = new List<string>()
+        private const string Indentation = "    "; // The indentation to use when compiling statements - eg. if, while
+        private readonly List<string> identifiers = new List<string>() // A list of all identifiers
         {
             "START_PROGRAM",
             "END_PROGRAM",
@@ -41,7 +41,8 @@ namespace TDSStudios.TomScriptCore
             "BLANK_LINE",
             "TO"
         };
-        private readonly List<string> operations = new List<string> {
+        private readonly List<string> operations = new List<string>  // A list of possible operations
+        {
             "IS_EQUAL_TO",
             "IS_NOT_EQUAL_TO",
             "IS_GREATER_THAN",
@@ -52,27 +53,30 @@ namespace TDSStudios.TomScriptCore
             "IS_ODD"
         };
 
-        private string languagePath = @".\lang\";
+        private string language = "standard"; // The language to use, defaulting to standard
+        private string source; // The source TomScript code
+        private Queue<string> tokenQueue = new Queue<string>(); // A queue of tokens to parse
+        private Dictionary<string, Type> variables = new Dictionary<string, Type>(); // A table containing the name and type of each variable
 
-        private string language = "standard";
-        private string source;
-        private Queue<string> tokenQueue = new Queue<string>();
-        private Dictionary<string, Type> variables = new Dictionary<string, Type>();
+        private Dictionary<string, List<string>> translations = new Dictionary<string, List<string>>(); // A dictionary containing each language and its identifiers
 
-        private Dictionary<string, List<string>> translations = new Dictionary<string, List<string>>();
+        private bool verbose = false; // Whether or not to print verbose messages during compilation
 
-
-        private string generatedCode = "";
+        private string generatedCode = ""; // The ouput code
 
 
         public TomScriptCompiler() { }
 
-        public TomScriptCompiler(string sourceCode)
+        public TomScriptCompiler(string sourceCode, bool verbose = false)
         {
             this.source = sourceCode;
+            this.verbose = verbose;
         }
 
-
+        /// <summary>
+        /// Starts compilation, calling every function required.
+        /// </summary>
+        /// <returns></returns>
         public string Compile()
         {
             print($"\n-- Starting compilation --");
@@ -90,16 +94,19 @@ namespace TDSStudios.TomScriptCore
             return generatedCode;
         }
 
+        /// <summary>
+        /// Loads the languages from the project's resources.
+        /// </summary>
         void LoadLanguages()
         {
             print("Reading installed language files...");
-            //foreach (var file in new DirectoryInfo(languagePath).EnumerateFiles())
 
             var languageFiles = new Dictionary<string, string>()
             {
                 ["standard"] = Properties.Resources.standard,
                 ["friendly"] = Properties.Resources.friendly,
-                ["fancy"] = Properties.Resources.fancy
+                ["fancy"] = Properties.Resources.fancy,
+                ["francais"] = Properties.Resources.francais
             };
 
             foreach (var file in languageFiles)
@@ -118,7 +125,9 @@ namespace TDSStudios.TomScriptCore
 
         }
 
-
+        /// <summary>
+        /// Identifies the script features, before the start instruction.
+        /// </summary>
         private void IndentifierIdentification()
         {
             print("Identifying identifiers...");
@@ -130,7 +139,9 @@ namespace TDSStudios.TomScriptCore
             source = newSource;
         }
 
-
+        /// <summary>
+        /// Converts the source code into tokens defined by the current language, using regex.
+        /// </summary>
         private void TokeniseSource()
         {
             print("Tokenising the source file...");
@@ -147,6 +158,11 @@ namespace TDSStudios.TomScriptCore
             }
         }
 
+        /// <summary>
+        /// Parses the tokens in the queue, starting at the beginning and continuting until the end of the instruction.
+        /// </summary>
+        /// <param name="prefix">What to write before each line, in case the instruction is within a loop</param>
+        /// <returns></returns>
         private string ParseTokens(string prefix = "")
         {
             if (tokenQueue.Count == 0) return "";
@@ -284,7 +300,7 @@ namespace TDSStudios.TomScriptCore
                         token = tokenQueue.Dequeue();
                         while (token != "REPEAT_END")
                         {
-                            code += ParseTokens(prefix = indentation);
+                            code += ParseTokens(prefix = Indentation);
                             token = tokenQueue.Dequeue();
                         }
                     }
@@ -392,7 +408,7 @@ namespace TDSStudios.TomScriptCore
 
                         while (token != "REPEAT_END")
                         {
-                            code += ParseTokens(prefix = indentation);
+                            code += ParseTokens(prefix = Indentation);
                             token = tokenQueue.Peek();
                         }
                     }
@@ -404,7 +420,7 @@ namespace TDSStudios.TomScriptCore
                         token = tokenQueue.Dequeue();
                         while (token != "REPEAT_END")
                         {
-                            code += ParseTokens(prefix = indentation);
+                            code += ParseTokens(prefix = Indentation);
                             token = tokenQueue.Peek();
                         }
                     }
@@ -524,7 +540,7 @@ namespace TDSStudios.TomScriptCore
 
                         while (token != "IF_END" && token != "IF_ELSE" && token != "IF_ELSE_IF")
                         {
-                            code += ParseTokens(prefix = indentation);
+                            code += ParseTokens(prefix = Indentation);
                             token = tokenQueue.Peek();
                         }
                         break;
@@ -631,7 +647,7 @@ namespace TDSStudios.TomScriptCore
 
                         while (token != "IF_END" && token != "IF_ELSE" && token != "IF_ELSE_IF")
                         {
-                            code += ParseTokens(prefix = indentation);
+                            code += ParseTokens(prefix = Indentation);
                             token = tokenQueue.Peek();
                         }
                         break;
@@ -644,7 +660,7 @@ namespace TDSStudios.TomScriptCore
 
                     while (token != "IF_END" && token != "IF_ELSE" && token != "IF_ELSE_IF")
                     {
-                        code += ParseTokens(prefix = indentation);
+                        code += ParseTokens(prefix = Indentation);
                         token = tokenQueue.Peek();
                     }
                     break;
@@ -665,7 +681,11 @@ namespace TDSStudios.TomScriptCore
             return code;
         }
 
-
+        /// <summary>
+        /// Gets the type of the variable given from the dictionary of variables.
+        /// </summary>
+        /// <param name="value">The name of the variable to get the type of</param>
+        /// <returns></returns>
         private Type GetValueType(string value)
         {
             value = value.Trim();
@@ -676,11 +696,16 @@ namespace TDSStudios.TomScriptCore
         }
 
 
-        private string EscapeValue(string value)
-        {
-            return value.Replace("'", "\\'");
-        }
+        /// <summary>
+        /// Escapes any illegal characters in the given string.
+        /// </summary>
+        /// <param name="value">The string to escape</param>
+        /// <returns></returns>
+        private string EscapeValue(string value) => value.Replace("'", "\\'");
 
+        /// <summary>
+        /// Generates the code by looping through the remaining tokens in the queue.
+        /// </summary>
         private void GenerateCode()
         {
             print("Starting code generation...");
@@ -696,18 +721,32 @@ namespace TDSStudios.TomScriptCore
             generatedCode = $"# Generated with TomScript Compiler - https://github.com/tomc128/tomscript \n{generatedCode}\nprint('Press enter to quit...')\ninput()";
         }
 
+        /// <summary>
+        /// A function which writes each token to the console if verbose logging is enabled.
+        /// </summary>
         void PrintTokens()
         {
-            Console.WriteLine("[");
-            foreach (var item in tokenQueue)
+            if (verbose)
             {
-                Console.WriteLine($"'{item}', ");
+                Console.WriteLine("[");
+                foreach (var item in tokenQueue)
+                {
+                    Console.WriteLine($"'{item}', ");
+                }
+                Console.WriteLine("]");
             }
-            Console.WriteLine("]");
         }
+
+        /// <summary>
+        /// A function which writes the object to the console if verbose logging is enabled.
+        /// </summary>
+        /// <param name="o">The object to print to the console</param>
         void print(object o)
         {
-            Console.WriteLine(o);
+            if (verbose)
+            {
+                Console.WriteLine(o);
+            }
         }
     }
 

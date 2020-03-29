@@ -3,7 +3,8 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>TDSStudios.TomScriptCore</RootNamespace>
+    <RootNamespace>TDSStudios.TomScript.Core</RootNamespace>
+    <AssemblyName>TomScriptCore</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
