@@ -52,6 +52,10 @@ namespace TDSStudios.TomScript.Core
             "IS_EVEN",
             "IS_ODD"
         };
+        private readonly List<string> rawTextInitiators = new List<string> // A list of indentifiers which, if at the beginning of a line, will cause subsequent variables and commands to not be translated
+        {
+            "WRITE"
+        };
 
         private string language = "standard"; // The language to use, defaulting to standard
         private string source; // The source TomScript code
@@ -65,8 +69,11 @@ namespace TDSStudios.TomScript.Core
         private string generatedCode = ""; // The ouput code
 
 
-        public TomScriptCompiler() { }
-
+        /// <summary>
+        /// Creates a new TomScript compiler object, with predefined values.
+        /// </summary>
+        /// <param name="sourceCode">A string containing the source code destined to be compiled</param>
+        /// <param name="verbose">Should verbose log messages be outputted?</param>
         public TomScriptCompiler(string sourceCode, bool verbose = false)
         {
             this.source = sourceCode;
@@ -131,7 +138,13 @@ namespace TDSStudios.TomScript.Core
         private void IndentifierIdentification()
         {
             print("Identifying identifiers...");
+
             string newSource = source;
+
+            string rawTextInitiatorSearch = "";
+            rawTextInitiators.ForEach(t => rawTextInitiatorSearch += t + "|");
+            rawTextInitiatorSearch = rawTextInitiatorSearch.Trim('|');
+
             foreach (var identifier in translations[language])
             {
                 newSource = Regex.Replace(newSource, $@"(\s+){identifier}(\s+)", $"$1{identifiers[translations[language].IndexOf(identifier)]}$2", RegexOptions.IgnoreCase);
@@ -306,7 +319,6 @@ namespace TDSStudios.TomScript.Core
                     }
                     else if (token == "WHILE")
                     {
-                        // While loop!
                         token = tokenQueue.Peek();
                         var leftParams = new List<string>();
                         var rightParams = new List<string>();
