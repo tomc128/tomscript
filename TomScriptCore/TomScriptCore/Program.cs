@@ -5,7 +5,7 @@ namespace TDSStudios.TomScript.Core
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             var compiler = new TomScriptCompiler(@"
                

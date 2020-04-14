@@ -52,10 +52,6 @@ namespace TDSStudios.TomScript.Core
             "IS_EVEN",
             "IS_ODD"
         };
-        private readonly List<string> rawTextInitiators = new List<string> // A list of indentifiers which, if at the beginning of a line, will cause subsequent variables and commands to not be translated
-        {
-            "WRITE"
-        };
 
         private string language = "standard"; // The language to use, defaulting to standard
         private string source; // The source TomScript code
@@ -86,7 +82,7 @@ namespace TDSStudios.TomScript.Core
         /// <returns></returns>
         public string Compile()
         {
-            print($"\n-- Starting compilation --");
+            Log($"\n-- Starting compilation --");
 
             var startTime = DateTime.Now;
             LoadLanguages();
@@ -106,7 +102,7 @@ namespace TDSStudios.TomScript.Core
         /// </summary>
         void LoadLanguages()
         {
-            print("Reading installed language files...");
+            Log("Reading installed language files...");
 
             var languageFiles = new Dictionary<string, string>()
             {
@@ -127,7 +123,7 @@ namespace TDSStudios.TomScript.Core
                 }
 
                 translations.Add(file.Key, language);
-                print("Found language: " + file.Key.Split('.')[0]);
+                Log("Found language: " + file.Key.Split('.')[0]);
             }
 
         }
@@ -137,13 +133,9 @@ namespace TDSStudios.TomScript.Core
         /// </summary>
         private void IndentifierIdentification()
         {
-            print("Identifying identifiers...");
+            Log("Identifying identifiers...");
 
             string newSource = source;
-
-            string rawTextInitiatorSearch = "";
-            rawTextInitiators.ForEach(t => rawTextInitiatorSearch += t + "|");
-            rawTextInitiatorSearch = rawTextInitiatorSearch.Trim('|');
 
             foreach (var identifier in translations[language])
             {
@@ -157,7 +149,7 @@ namespace TDSStudios.TomScript.Core
         /// </summary>
         private void TokeniseSource()
         {
-            print("Tokenising the source file...");
+            Log("Tokenising the source file...");
             foreach (var line in source.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 foreach (var word in Regex.Split(line, @"(?<=[ ]+)|([!,.:?(){}\[\]][ ]*)"))
@@ -720,7 +712,7 @@ namespace TDSStudios.TomScript.Core
         /// </summary>
         private void GenerateCode()
         {
-            print("Starting code generation...");
+            Log("Starting code generation...");
             int i = 0;
             while (tokenQueue.Count > 0)
             {
@@ -728,7 +720,7 @@ namespace TDSStudios.TomScript.Core
                 Console.Write($"Compiling {new string('.', Math.Min(Console.WindowWidth - 20, i))}\r");
                 i++;
             }
-            print("");
+            Log("");
 
             generatedCode = $"# Generated with TomScript Compiler - https://github.com/tomc128/tomscript \n{generatedCode}\nprint('Press enter to quit...')\ninput()";
         }
@@ -753,12 +745,9 @@ namespace TDSStudios.TomScript.Core
         /// A function which writes the object to the console if verbose logging is enabled.
         /// </summary>
         /// <param name="o">The object to print to the console</param>
-        void print(object o)
+        void Log(object o)
         {
-            if (verbose)
-            {
-                Console.WriteLine(o);
-            }
+            if (verbose) Console.WriteLine(o);
         }
     }
 
@@ -766,11 +755,13 @@ namespace TDSStudios.TomScript.Core
     {
         public VariableNotDefinedException() { }
         public VariableNotDefinedException(string message) : base(message) { }
+        public VariableNotDefinedException(string message, Exception innerException) : base(message, innerException) { }
     }
 
     public class InvalidOperationException : Exception
     {
         public InvalidOperationException() { }
         public InvalidOperationException(string message) : base(message) { }
+        public InvalidOperationException(string message, Exception innerException) : base(message, innerException) { }
     }
 }
