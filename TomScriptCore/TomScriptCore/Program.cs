@@ -9,14 +9,12 @@ namespace TDSStudios.TomScript.Core
                
             start
 
-            create variable number and set number to 0
-        
             set number to user input
 
             if number is even
-            write Your input is even.
+            write number is even.
             else
-            write Your input is odd.
+            write number is odd.
             done
 
             end
@@ -25,12 +23,18 @@ namespace TDSStudios.TomScript.Core
 
         static void Main()
         {
-            var compiler = new TomScriptCompiler(tomscriptCode, true);
+            var compiler = new TomScriptCompiler(tomscriptCode, true) ;
             string output = compiler.Compile();
 
             File.WriteAllText("output.py", output);
 
-            Console.WriteLine($"\n\nCode: ---\n\n{output}\n\n---");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"\nCompiled code:");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine($"{output}\n");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"Thanks for using TomScript!");
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }

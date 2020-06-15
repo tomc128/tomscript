@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -9,6 +10,7 @@ namespace TDSStudios.TomScript.Core
     public class TomScriptCompiler
     {
         private const string Indentation = "    "; // The indentation to use when compiling statements - eg. if, while
+
         private readonly List<string> identifiers = new List<string>() // A list of all identifiers
         {
             "START_PROGRAM",
@@ -56,7 +58,10 @@ namespace TDSStudios.TomScript.Core
         private string language = "standard"; // The language to use, defaulting to standard
         private string source; // The source TomScript code
         private Queue<string> tokenQueue = new Queue<string>(); // A queue of tokens to parse
+
+        [Obsolete("Moving to tracked variable structure")]
         private Dictionary<string, Type> variables = new Dictionary<string, Type>(); // A table containing the name and type of each variable
+        private Dictionary<string, object> trackedVariables = new Dictionary<string, object>();
 
         private Dictionary<string, List<string>> translations = new Dictionary<string, List<string>>(); // A dictionary containing each language and its identifiers
 
@@ -74,6 +79,7 @@ namespace TDSStudios.TomScript.Core
         {
             this.source = sourceCode;
             this.verbose = verbose;
+            LoadLanguages();
         }
 
         /// <summary>
@@ -82,17 +88,19 @@ namespace TDSStudios.TomScript.Core
         /// <returns></returns>
         public string Compile()
         {
-            Log($"\n-- Starting compilation --");
+            Log($"\nStarting compilation", ConsoleColor.Yellow);
 
             var startTime = DateTime.Now;
-            LoadLanguages();
             IndentifierIdentification();
             TokeniseSource();
-            GenerateCode();
+            bool success = GenerateCode();
             var endTime = DateTime.Now;
             var timeTaken = endTime - startTime;
 
-            Console.WriteLine($"Compilation finished in {timeTaken.TotalMilliseconds}ms");
+            if (success)
+                Log($"Compilation finished in {timeTaken.TotalMilliseconds}ms", ConsoleColor.Yellow);
+            else
+                Log($"Compilation failed in {timeTaken.TotalMilliseconds}ms", ConsoleColor.Yellow);
 
             return generatedCode;
         }
@@ -102,7 +110,7 @@ namespace TDSStudios.TomScript.Core
         /// </summary>
         void LoadLanguages()
         {
-            Log("Reading installed language files...");
+            Log("Reading installed language files", ConsoleColor.Yellow);
 
             var languageFiles = new Dictionary<string, string>()
             {
@@ -123,7 +131,7 @@ namespace TDSStudios.TomScript.Core
                 }
 
                 translations.Add(file.Key, language);
-                Log("Found language: " + file.Key.Split('.')[0]);
+                Log($"Found language: {file.Key.Split('.')[0]}", ConsoleColor.Gray);
             }
 
         }
@@ -133,7 +141,7 @@ namespace TDSStudios.TomScript.Core
         /// </summary>
         private void IndentifierIdentification()
         {
-            Log("Identifying identifiers...");
+            Log("Identifying code identifiers", ConsoleColor.Gray);
 
             string newSource = source;
 
@@ -149,7 +157,7 @@ namespace TDSStudios.TomScript.Core
         /// </summary>
         private void TokeniseSource()
         {
-            Log("Tokenising the source file...");
+            Log("Tokenising code", ConsoleColor.Gray);
             foreach (var line in source.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries))
             {
                 foreach (var word in Regex.Split(line, @"(?<=[ ]+)|([!,.:?(){}\[\]][ ]*)"))
@@ -173,6 +181,7 @@ namespace TDSStudios.TomScript.Core
             if (tokenQueue.Count == 0) return "";
 
             string token = tokenQueue.Dequeue();
+            string trimmed = token.Trim();
             string code = prefix;
 
             switch (token.Trim())
@@ -188,24 +197,38 @@ namespace TDSStudios.TomScript.Core
                     while (token != "|" && token.Trim() != "//")
                     {
                         token = tokenQueue.Dequeue();
-                        if (variables.ContainsKey(token.Trim()))
+                        trimmed = token.Trim();
+
+                        if (trackedVariables.ContainsKey(trimmed))
                         {
-                            if (token.EndsWith(" "))
-                            {
-                                if (variables[token.Trim()] == typeof(float) || variables[token.Trim()] == typeof(int) || variables[token.Trim()] == null) code += $"' + str({EscapeValue(token.Trim())}) + ' ";
-                                else code += $"' + {EscapeValue(token.Trim())} + ' ";
-                            }
-                            else
-                            {
-                                if (variables[token.Trim()] == typeof(float) || variables[token.Trim()] == typeof(int) || variables[token.Trim()] == null) code += $"' + str({EscapeValue(token.Trim())}) + '";
-                                else code += $"' + {EscapeValue(token.Trim())} + '";
-                            }
+                            // We should output the value of the variable, not the word
+
+                            code += $"{EscapeValue(trackedVariables[trimmed])}";
                         }
                         else
                         {
                             if (token == "BLANK_LINE") code += "";
                             else code += EscapeValue(token);
                         }
+
+                        //if (variables.ContainsKey(token.Trim()))
+                        //{
+                        //    if (token.EndsWith(" "))
+                        //    {
+                        //        if (variables[token.Trim()] == typeof(float) || variables[token.Trim()] == typeof(int) || variables[token.Trim()] == null) code += $"' + str({EscapeValue(token.Trim())}) + ' ";
+                        //        else code += $"' + {EscapeValue(token.Trim())} + ' ";
+                        //    }
+                        //    else
+                        //    {
+                        //        if (variables[token.Trim()] == typeof(float) || variables[token.Trim()] == typeof(int) || variables[token.Trim()] == null) code += $"' + str({EscapeValue(token.Trim())}) + '";
+                        //        else code += $"' + {EscapeValue(token.Trim())} + '";
+                        //    }
+                        //}
+                        //else
+                        //{
+                        //    if (token == "BLANK_LINE") code += "";
+                        //    else code += EscapeValue(token);
+                        //}
 
                         token = tokenQueue.Peek();
                     }
@@ -224,7 +247,7 @@ namespace TDSStudios.TomScript.Core
                             token = tokenQueue.Dequeue();
                             variables[token.Trim()] = null;
 
-                            code += $"{token.Trim()} = None\n";
+                            //code += $"{token.Trim()} = None\n";
                             break;
                     }
                     break;
@@ -705,24 +728,39 @@ namespace TDSStudios.TomScript.Core
         /// </summary>
         /// <param name="value">The string to escape</param>
         /// <returns></returns>
-        private string EscapeValue(string value) => value.Replace("'", "\\'");
+        private string EscapeValue(object value) => value.ToString().Replace("'", "\\'");
 
         /// <summary>
         /// Generates the code by looping through the remaining tokens in the queue.
         /// </summary>
-        private void GenerateCode()
+        private bool GenerateCode()
         {
-            Log("Starting code generation...");
+            Log("Starting code generation", ConsoleColor.Gray);
             int i = 0;
             while (tokenQueue.Count > 0)
             {
-                generatedCode += ParseTokens();
-                Console.Write($"Compiling {new string('.', Math.Min(Console.WindowWidth - 20, i))}\r");
-                i++;
+                try
+                {
+                    generatedCode += ParseTokens();
+                    if (verbose)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                        Console.Write($"Compiling{new string('.', Math.Min(Console.WindowWidth - 20, i))}\r");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                    i++;
+                }
+                catch (Exception ex)
+                {
+                    LogError(ex);
+                    generatedCode = $"\"\"\"\nThere was an error during TomScript compilation:\n---\n{ex}\n\"\"\"";
+                    return false;
+                }
             }
             Log("");
 
             generatedCode = $"# Generated with TomScript Compiler - https://github.com/tomc128/tomscript \n{generatedCode}\nprint('Press enter to quit...')\ninput()";
+            return true;
         }
 
         /// <summary>
@@ -745,9 +783,18 @@ namespace TDSStudios.TomScript.Core
         /// A function which writes the object to the console if verbose logging is enabled.
         /// </summary>
         /// <param name="o">The object to print to the console</param>
-        void Log(object o)
+        void Log(object o, ConsoleColor colour = ConsoleColor.White, bool force = false)
         {
-            if (verbose) Console.WriteLine(o);
+            if (!verbose && !force) return;
+
+            Console.ForegroundColor = colour;
+            Console.WriteLine(o);
+            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        void LogError(object o)
+        {
+            Log(o, colour: ConsoleColor.Red, force: true);
         }
     }
 
