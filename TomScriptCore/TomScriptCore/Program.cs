@@ -5,9 +5,7 @@ namespace TDSStudios.TomScript.Core
 {
     class Program
     {
-        static void Main()
-        {
-            var compiler = new TomScriptCompiler(@"
+        static string tomscriptCode = @"
                
             start
 
@@ -23,7 +21,11 @@ namespace TDSStudios.TomScript.Core
 
             end
 
-            ", true);
+            ";
+
+        static void Main()
+        {
+            var compiler = new TomScriptCompiler(tomscriptCode, true);
             string output = compiler.Compile();
 
             File.WriteAllText("output.py", output);
