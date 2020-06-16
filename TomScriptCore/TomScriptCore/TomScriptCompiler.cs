@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
 using System.Text.RegularExpressions;
 
 namespace TDSStudios.TomScript.Core
 {
+    /// <summary>
+    /// Create an instance of one of these bad boys to handle all you TomScript compilation needs!
+    /// </summary>
     public class TomScriptCompiler
     {
         private const string Indentation = "    "; // The indentation to use when compiling statements - eg. if, while
@@ -59,9 +59,7 @@ namespace TDSStudios.TomScript.Core
         private string source; // The source TomScript code
         private Queue<string> tokenQueue = new Queue<string>(); // A queue of tokens to parse
 
-        [Obsolete("Moving to tracked variable structure")]
         private Dictionary<string, Type> variables = new Dictionary<string, Type>(); // A table containing the name and type of each variable
-        private Dictionary<string, object> trackedVariables = new Dictionary<string, object>();
 
         private Dictionary<string, List<string>> translations = new Dictionary<string, List<string>>(); // A dictionary containing each language and its identifiers
 
@@ -98,9 +96,9 @@ namespace TDSStudios.TomScript.Core
             var timeTaken = endTime - startTime;
 
             if (success)
-                Log($"Compilation finished in {timeTaken.TotalMilliseconds}ms", ConsoleColor.Yellow);
+                Log($"Compilation finished in {timeTaken.TotalMilliseconds}ms", ConsoleColor.Green);
             else
-                Log($"Compilation failed in {timeTaken.TotalMilliseconds}ms", ConsoleColor.Yellow);
+                Log($"Compilation failed in {timeTaken.TotalMilliseconds}ms", ConsoleColor.Red);
 
             return generatedCode;
         }
@@ -108,7 +106,7 @@ namespace TDSStudios.TomScript.Core
         /// <summary>
         /// Loads the languages from the project's resources.
         /// </summary>
-        void LoadLanguages()
+        private void LoadLanguages()
         {
             Log("Reading installed language files", ConsoleColor.Yellow);
 
@@ -181,7 +179,7 @@ namespace TDSStudios.TomScript.Core
             if (tokenQueue.Count == 0) return "";
 
             string token = tokenQueue.Dequeue();
-            string trimmed = token.Trim();
+            string trimmed;
             string code = prefix;
 
             switch (token.Trim())
@@ -199,36 +197,24 @@ namespace TDSStudios.TomScript.Core
                         token = tokenQueue.Dequeue();
                         trimmed = token.Trim();
 
-                        if (trackedVariables.ContainsKey(trimmed))
+                        if (variables.ContainsKey(trimmed))
                         {
-                            // We should output the value of the variable, not the word
-
-                            code += $"{EscapeValue(trackedVariables[trimmed])}";
+                            if (token.EndsWith(" ", StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (variables[trimmed] == typeof(float) || variables[trimmed] == typeof(int) || variables[trimmed] == null) code += $"' + str({EscapeValue(trimmed)}) + ' ";
+                                else code += $"' + {EscapeValue(trimmed)} + ' ";
+                            }
+                            else
+                            {
+                                if (variables[trimmed] == typeof(float) || variables[trimmed] == typeof(int) || variables[trimmed] == null) code += $"' + str({EscapeValue(trimmed)}) + '";
+                                else code += $"' + {EscapeValue(trimmed)} + '";
+                            }
                         }
                         else
                         {
                             if (token == "BLANK_LINE") code += "";
                             else code += EscapeValue(token);
                         }
-
-                        //if (variables.ContainsKey(token.Trim()))
-                        //{
-                        //    if (token.EndsWith(" "))
-                        //    {
-                        //        if (variables[token.Trim()] == typeof(float) || variables[token.Trim()] == typeof(int) || variables[token.Trim()] == null) code += $"' + str({EscapeValue(token.Trim())}) + ' ";
-                        //        else code += $"' + {EscapeValue(token.Trim())} + ' ";
-                        //    }
-                        //    else
-                        //    {
-                        //        if (variables[token.Trim()] == typeof(float) || variables[token.Trim()] == typeof(int) || variables[token.Trim()] == null) code += $"' + str({EscapeValue(token.Trim())}) + '";
-                        //        else code += $"' + {EscapeValue(token.Trim())} + '";
-                        //    }
-                        //}
-                        //else
-                        //{
-                        //    if (token == "BLANK_LINE") code += "";
-                        //    else code += EscapeValue(token);
-                        //}
 
                         token = tokenQueue.Peek();
                     }
@@ -246,8 +232,6 @@ namespace TDSStudios.TomScript.Core
                         case "VARIABLE":
                             token = tokenQueue.Dequeue();
                             variables[token.Trim()] = null;
-
-                            //code += $"{token.Trim()} = None\n";
                             break;
                     }
                     break;
@@ -328,7 +312,7 @@ namespace TDSStudios.TomScript.Core
                         token = tokenQueue.Dequeue();
                         while (token != "REPEAT_END")
                         {
-                            code += ParseTokens(prefix = Indentation);
+                            code += ParseTokens(prefix: Indentation);
                             token = tokenQueue.Dequeue();
                         }
                     }
@@ -337,7 +321,7 @@ namespace TDSStudios.TomScript.Core
                         token = tokenQueue.Peek();
                         var leftParams = new List<string>();
                         var rightParams = new List<string>();
-                        string operation = "";
+                        string operation;
 
                         while (!operations.Contains(token))
                         {
@@ -373,7 +357,7 @@ namespace TDSStudios.TomScript.Core
                                 throw new InvalidOperationException($"The operation '{token}' is invalid.");
                         }
 
-                        if (isOneSidedOperator) token = tokenQueue.Dequeue();
+                        if (isOneSidedOperator) tokenQueue.Dequeue();
                         token = tokenQueue.Dequeue();
 
                         while (token != "|" && token.Trim() != "//")
@@ -435,7 +419,7 @@ namespace TDSStudios.TomScript.Core
 
                         while (token != "REPEAT_END")
                         {
-                            code += ParseTokens(prefix = Indentation);
+                            code += ParseTokens(prefix: Indentation);
                             token = tokenQueue.Peek();
                         }
                     }
@@ -447,7 +431,7 @@ namespace TDSStudios.TomScript.Core
                         token = tokenQueue.Dequeue();
                         while (token != "REPEAT_END")
                         {
-                            code += ParseTokens(prefix = Indentation);
+                            code += ParseTokens(prefix: Indentation);
                             token = tokenQueue.Peek();
                         }
                     }
@@ -462,7 +446,7 @@ namespace TDSStudios.TomScript.Core
                         token = tokenQueue.Peek();
                         var leftParams = new List<string>();
                         var rightParams = new List<string>();
-                        string operation = "";
+                        string operation;
 
                         while (!operations.Contains(token))
                         {
@@ -499,7 +483,7 @@ namespace TDSStudios.TomScript.Core
                                 throw new InvalidOperationException($"The operation '{token}' is invalid.");
                         }
 
-                        if (isOneSidedOperator) token = tokenQueue.Dequeue();
+                        if (isOneSidedOperator) tokenQueue.Dequeue();
                         token = tokenQueue.Dequeue();
 
                         while (token.Trim() != "|" && token.Trim() != "//")
@@ -567,7 +551,7 @@ namespace TDSStudios.TomScript.Core
 
                         while (token != "IF_END" && token != "IF_ELSE" && token != "IF_ELSE_IF")
                         {
-                            code += ParseTokens(prefix = Indentation);
+                            code += ParseTokens(prefix: Indentation);
                             token = tokenQueue.Peek();
                         }
                         break;
@@ -578,7 +562,7 @@ namespace TDSStudios.TomScript.Core
                         token = tokenQueue.Peek();
                         var leftParams = new List<string>();
                         var rightParams = new List<string>();
-                        string operation = "";
+                        string operation;
 
                         while (!operations.Contains(token))
                         {
@@ -614,7 +598,7 @@ namespace TDSStudios.TomScript.Core
                                 throw new InvalidOperationException($"The operation '{token}' is invalid.");
                         }
 
-                        if (isOneSidedOperator) token = tokenQueue.Dequeue();
+                        if (isOneSidedOperator) tokenQueue.Dequeue();
                         token = tokenQueue.Dequeue();
 
                         while (token != "|" && token != "//")
@@ -666,7 +650,7 @@ namespace TDSStudios.TomScript.Core
                                 }
                                 if (i + 1 < rightParams.Count)
                                 {
-                                    if (variables.ContainsKey(rightParams[i + 1].Trim())) right = right + "+";
+                                    if (variables.ContainsKey(rightParams[i + 1].Trim())) right += "+";
                                 }
                             }
                         }
@@ -674,7 +658,7 @@ namespace TDSStudios.TomScript.Core
 
                         while (token != "IF_END" && token != "IF_ELSE" && token != "IF_ELSE_IF")
                         {
-                            code += ParseTokens(prefix = Indentation);
+                            code += ParseTokens(prefix: Indentation);
                             token = tokenQueue.Peek();
                         }
                         break;
@@ -687,7 +671,7 @@ namespace TDSStudios.TomScript.Core
 
                     while (token != "IF_END" && token != "IF_ELSE" && token != "IF_ELSE_IF")
                     {
-                        code += ParseTokens(prefix = Indentation);
+                        code += ParseTokens(prefix: Indentation);
                         token = tokenQueue.Peek();
                     }
                     break;
@@ -712,8 +696,8 @@ namespace TDSStudios.TomScript.Core
         /// Gets the type of the variable given from the dictionary of variables.
         /// </summary>
         /// <param name="value">The name of the variable to get the type of</param>
-        /// <returns></returns>
-        private Type GetValueType(string value)
+        /// <returns>Type of the variable</returns>
+        private static Type GetValueType(string value)
         {
             value = value.Trim();
 
@@ -728,7 +712,7 @@ namespace TDSStudios.TomScript.Core
         /// </summary>
         /// <param name="value">The string to escape</param>
         /// <returns></returns>
-        private string EscapeValue(object value) => value.ToString().Replace("'", "\\'");
+        private static string EscapeValue(object value) => value.ToString().Replace("'", "\\'", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// Generates the code by looping through the remaining tokens in the queue.
@@ -766,14 +750,14 @@ namespace TDSStudios.TomScript.Core
         /// <summary>
         /// A function which writes each token to the console if verbose logging is enabled.
         /// </summary>
-        void PrintTokens()
+        private void PrintTokens()
         {
             if (verbose)
             {
                 Console.WriteLine("[");
                 foreach (var item in tokenQueue)
                 {
-                    Console.WriteLine($"'{item}', ");
+                    Console.Write($"'{item}', ");
                 }
                 Console.WriteLine("]");
             }
@@ -783,6 +767,8 @@ namespace TDSStudios.TomScript.Core
         /// A function which writes the object to the console if verbose logging is enabled.
         /// </summary>
         /// <param name="o">The object to print to the console</param>
+        /// <param name="colour">The colour text to output</param>
+        /// <param name="force">Bypass the verbose setting and force the log</param>
         void Log(object o, ConsoleColor colour = ConsoleColor.White, bool force = false)
         {
             if (!verbose && !force) return;
@@ -794,10 +780,13 @@ namespace TDSStudios.TomScript.Core
 
         void LogError(object o)
         {
-            Log(o, colour: ConsoleColor.Red, force: true);
+            Log(o, colour: ConsoleColor.DarkRed, force: true);
         }
     }
 
+    /// <summary>
+    /// An exception thrown when a variable has not been defined
+    /// </summary>
     public class VariableNotDefinedException : Exception
     {
         public VariableNotDefinedException() { }
@@ -805,6 +794,9 @@ namespace TDSStudios.TomScript.Core
         public VariableNotDefinedException(string message, Exception innerException) : base(message, innerException) { }
     }
 
+    /// <summary>
+    /// An exception thrown when an operation is invalid
+    /// </summary>
     public class InvalidOperationException : Exception
     {
         public InvalidOperationException() { }
