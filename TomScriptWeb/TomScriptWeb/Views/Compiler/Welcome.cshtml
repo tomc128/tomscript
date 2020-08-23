@@ -1,0 +1,11 @@
+﻿
+@{
+    ViewData["Title"] = "Welcome";
+}
+
+<h1>Welcome</h1>
+
+<form asp-controller="Compiler" asp-action="Welcome" method="get">
+    <textarea name="RawScript">@ViewData["RawScript"]</textarea>
+    <input type="submit" value="Compile" />
+</form>

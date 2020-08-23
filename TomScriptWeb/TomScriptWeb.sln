@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TomScriptWeb", "TomScriptWeb\TomScriptWeb.csproj", "{877A2C8F-B71F-4C24-8AE1-DD7E04AC1E31}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{877A2C8F-B71F-4C24-8AE1-DD7E04AC1E31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{877A2C8F-B71F-4C24-8AE1-DD7E04AC1E31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{877A2C8F-B71F-4C24-8AE1-DD7E04AC1E31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{877A2C8F-B71F-4C24-8AE1-DD7E04AC1E31}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {72464988-E384-4094-94FA-44469CC517C6}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,25 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">TomScriptWeb</h1>
+    <p>
+        Welcome to TomScript on the web! TomScript is built with a C# compiler, that compiles into Python! This website was built with ASP.NET Core, which is also C#, and since this is my first project using it, it's truly terrible. Please forgive me.
+    </p>
+
+    <form action="" method="post">
+        <textarea asp-for="@Model.InputCode" placeholder="Enter TomScript code..." rows="10" cols="50"></textarea>
+        <input type="submit" name="submit" value="Compile"/>
+    </form>
+
+
+    <form action="" method="post">
+        <textarea asp-for="@Model.GeneratedCode" placeholder="Compiled Python code..." rows="10" cols="50" readonly></textarea>
+        <input type="submit" name="submit" value="Download"/>
+    </form>
+
+
+</div>
