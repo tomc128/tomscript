@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>TDSStudios.TomScript.UI</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MaterialDesignThemes" Version="3.2.0" />
+    <PackageReference Include="ShowMeTheXAML.MSBuild" Version="1.0.12" />
+    <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="TomScriptCore">
+      <HintPath>..\..\TomScriptCore\TomScriptCore\bin\Debug\netcoreapp3.1\TomScriptCore.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
