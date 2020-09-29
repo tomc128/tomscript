@@ -73,10 +73,8 @@ namespace TDSStudios.TomScript.Core
         /// </summary>
         /// <param name="sourceCode">A string containing the source code destined to be compiled</param>
         /// <param name="verbose">Should verbose log messages be outputted?</param>
-        public TomScriptCompiler(string sourceCode, bool verbose = false)
+        public TomScriptCompiler()
         {
-            this.source = sourceCode;
-            this.verbose = verbose;
             LoadLanguages();
         }
 
@@ -84,8 +82,10 @@ namespace TDSStudios.TomScript.Core
         /// Starts compilation, calling every function required.
         /// </summary>
         /// <returns></returns>
-        public string Compile()
+        public string Compile(string sourceCode)
         {
+            this.source = sourceCode;
+
             Log($"\nStarting compilation", ConsoleColor.Yellow);
 
             var startTime = DateTime.Now;

@@ -1,4 +1,5 @@
 ﻿using Microsoft.WindowsAPICodePack.Dialogs;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -106,20 +107,24 @@ namespace TDSStudios.TomScript.UI
 
         private async Task DoCompilation()
         {
-            TomScriptCompiler compiler;
+            var compiler = new TomScriptCompiler();
 
             foreach (var item in fileListView.Items)
             {
-                string sourceFileName = (item as Label).Content.ToString();
+                try
+                {
+                    string sourceFileName = (item as Label).Content.ToString();
+                    string sourceCode = await File.ReadAllTextAsync(sourceFileName);
 
-                string sourceCode = await File.ReadAllTextAsync(sourceFileName);
+                    var compiled = compiler.Compile(sourceCode);
 
-                compiler = new TomScriptCompiler(sourceCode, false);
-                var compiled = compiler.Compile();
-
-                string outputFileName = Path.Combine(outputPathBox.Text, Path.GetFileName(sourceFileName) + ".py");
-
-                await File.WriteAllTextAsync(outputFileName, compiled);
+                    string outputFileName = Path.Combine(outputPathBox.Text, Path.GetFileName(sourceFileName) + ".py");
+                    await File.WriteAllTextAsync(outputFileName, compiled);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error during compilation: {ex}");
+                }
             }
         }
 

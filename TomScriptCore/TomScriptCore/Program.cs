@@ -13,8 +13,8 @@ namespace TDSStudios.TomScript.Core
         {
             var input = File.ReadAllText(inputFile);
 
-            var compiler = new TomScriptCompiler(input, true);
-            string output = compiler.Compile();
+            var compiler = new TomScriptCompiler();
+            string output = compiler.Compile(input);
 
             File.WriteAllText("output.py", output);
 
