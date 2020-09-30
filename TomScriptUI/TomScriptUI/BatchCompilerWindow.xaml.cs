@@ -12,11 +12,18 @@ namespace TDSStudios.TomScript.UI
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class BatchCompilerWindow : Window
     {
-        public MainWindow()
+        private SplashWindow splashWindow;
+        private TomScriptCompiler compiler;
+
+        public BatchCompilerWindow(SplashWindow splashWindow)
         {
             InitializeComponent();
+
+            (this.splashWindow = splashWindow).Hide();
+
+            compiler = new TomScriptCompiler();
         }
 
         private void InputBrowseButton_Click(object sender, RoutedEventArgs e)
@@ -106,9 +113,7 @@ namespace TDSStudios.TomScript.UI
         }
 
         private async Task DoCompilation()
-        {
-            var compiler = new TomScriptCompiler();
-
+        { 
             foreach (var item in fileListView.Items)
             {
                 try
@@ -131,5 +136,9 @@ namespace TDSStudios.TomScript.UI
         private void AddFileToList(string fileName) => fileListView.Items.Add(fileName);
         private void DeleteLastFileFromList() => fileListView.Items.RemoveAt(fileListView.Items.Count - 1);
 
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            splashWindow.Show();
+        }
     }
 }
