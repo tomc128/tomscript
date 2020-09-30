@@ -71,8 +71,6 @@ namespace TDSStudios.TomScript.Core
         /// <summary>
         /// Creates a new TomScript compiler object, with predefined values.
         /// </summary>
-        /// <param name="sourceCode">A string containing the source code destined to be compiled</param>
-        /// <param name="verbose">Should verbose log messages be outputted?</param>
         public TomScriptCompiler()
         {
             LoadLanguages();
@@ -85,6 +83,8 @@ namespace TDSStudios.TomScript.Core
         public string Compile(string sourceCode)
         {
             this.source = sourceCode;
+            variables.Clear();
+            generatedCode = "";
 
             Log($"\nStarting compilation", ConsoleColor.Yellow);
 
