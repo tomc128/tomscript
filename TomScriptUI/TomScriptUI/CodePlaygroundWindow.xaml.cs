@@ -96,5 +96,10 @@ namespace TDSStudios.TomScript.UI
         {
             splashWindow.Show();
         }
+
+        private void CopyButton_Click(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(outputTextBox.Text);
+        }
     }
 }
