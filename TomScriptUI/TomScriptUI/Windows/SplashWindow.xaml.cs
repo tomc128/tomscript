@@ -33,5 +33,11 @@ namespace TDSStudios.TomScript.UI
             var window = new BatchCompilerWindow(this);
             window.Show();
         }
+
+        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new SettingsWindow(this);
+            window.Show();
+        }
     }
 }

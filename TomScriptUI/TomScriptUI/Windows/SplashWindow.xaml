@@ -20,7 +20,7 @@
                 <Button x:Name="codePlaygroundButton" Content="Let's Go" Margin="10,0,10,10" Height="32" VerticalAlignment="Bottom" Click="CodePlaygroundButton_Click"/>
             </Grid>
         </materialDesign:Card>
-        
+
         <materialDesign:Card HorizontalAlignment="Left" Margin="241,66,0,0" VerticalAlignment="Top" Height="201" Width="216">
             <Grid>
                 <Label Content="Batch Compiler" FontSize="18" Height="29" VerticalAlignment="Top" Margin="10,10,10,0"/>
@@ -28,6 +28,8 @@
                 <Button x:Name="batchCompilerButton" Content="Let's Go" Margin="10,0,10,10" Height="32" VerticalAlignment="Bottom" Click="BatchCompilerButton_Click"/>
             </Grid>
         </materialDesign:Card>
+        <Button x:Name="settingsButton" Style="{StaticResource MaterialDesignOutlinedButton}" Content="Settings" HorizontalAlignment="Left" Margin="10,0,0,10" Height="32" VerticalAlignment="Bottom" Click="SettingsButton_Click"/>
+        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Content="About" HorizontalAlignment="Left" Margin="101,0,0,10" Height="32" VerticalAlignment="Bottom"/>
 
     </Grid>
 </Window>
