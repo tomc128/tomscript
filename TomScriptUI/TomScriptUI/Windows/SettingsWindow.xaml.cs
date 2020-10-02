@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Text;
+﻿using Microsoft.WindowsAPICodePack.Dialogs;
+using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using TDSStudios.TomScript.UI.Util;
 
 namespace TDSStudios.TomScript.UI
 {
@@ -23,19 +17,47 @@ namespace TDSStudios.TomScript.UI
         public SettingsWindow(SplashWindow splashWindow)
         {
             InitializeComponent();
-            InitializeComponent();
 
-            (this.splashWindow = splashWindow).Hide();
+            (this.splashWindow = splashWindow)?.Hide();
+
+            pythonExecutableLocationTextBox.Text = App.Settings.PythonExecutableLocation;
         }
 
         private void PythonExecutableLocationTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-
+            App.Settings.PythonExecutableLocation = pythonExecutableLocationTextBox.Text;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            splashWindow.Show();
+            UserSettings.Save(App.Settings);
+
+            splashWindow?.Show();
+        }
+
+        private void PythonBrowseButton_Click(object sender, RoutedEventArgs e)
+        {
+            using var dialog = new CommonOpenFileDialog
+            {
+                Title = "Select Python.exe Location",
+                Multiselect = false,
+            };
+
+            dialog.Filters.Add(new CommonFileDialogFilter("python.exe", ".exe"));
+
+            var result = dialog.ShowDialog();
+
+            if (result == CommonFileDialogResult.Ok)
+            {
+                if (Path.GetFileName(dialog.FileName) != "python.exe")
+                {
+                    MessageBox.Show("Select python.exe file");
+                }
+                else
+                {
+                    pythonExecutableLocationTextBox.Text = dialog.FileName;
+                }
+            }
         }
     }
 }
